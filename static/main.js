@@ -1,7 +1,7 @@
 let canvas;
 let ctx;
 let body;
-let settings;
+let settings_dom;
 let settings_viz, settings_seq;
 let select;
 let select_viz, select_seq;
@@ -9,13 +9,20 @@ let select_viz, select_seq;
 let current_viz = "circle_number_modulo";
 let current_seq = "fibonacci";
 
+let settings = {
+    colors: {
+        main: "#ffffff",
+        bg: "#34373b",
+    }
+};
+
 window.addEventListener("load", () => {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
-    settings = document.getElementById("settings");
+    settings_dom = document.getElementById("settings");
     settings_viz = document.getElementById("settings-viz");
     settings_seq = document.getElementById("settings-seq");
-    settings.addEventListener("keyup", resize_canvas);
+    settings_dom.addEventListener("keyup", resize_canvas);
 
     select = document.getElementById("select");
     select_viz = document.getElementById("viz");
@@ -36,35 +43,10 @@ window.addEventListener("load", () => {
     resize_canvas();
 });
 
-function get_params() {
-    let inputs = [...settings.querySelectorAll(".input")];
-    let res = {};
-    inputs.forEach((input, n) => {
-        res[n] = input.innerText;
-    });
-    for (let input of inputs) {
-        let classes = [...input.classList].filter(name => name !== "input");
-        for (let name of classes) {
-            if (!res[name]) {
-                res[name] = [];
-            }
-            res[name].push(input.innerText);
-        }
-    }
-
-    res.colors = {
-        main: "#ffffff",
-        bg: "#34373b",
-    };
-
-    return res;
-}
-
 function redraw_canvas() {
     ctx.clearRect(0, 0, ctx.width, ctx.height);
-    let params = get_params();
-    let seq = SEQ[current_seq](params);
-    VIZ[current_viz](ctx, seq, params);
+    let seq = SEQ[current_seq](settings);
+    VIZ[current_viz](ctx, seq, settings);
 }
 
 function resize_canvas() {
@@ -94,8 +76,35 @@ function update_settings() {
     let seq = SEQ[current_seq];
     let viz = VIZ[current_viz];
 
-    settings_seq.innerHTML = seq.settings;
-    settings_viz.innerHTML = viz.settings.replace(/\{var\}/g, seq.var);
+    settings_seq.innerHTML = seq.settings
+        .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+            if (settings[ctx] && settings[ctx][name] !== undefined) {
+                return to_setting(settings[ctx][name], ctx, name);
+            } else {
+                if (settings[ctx] === undefined) {
+                    settings[ctx] = {};
+                }
+                settings[ctx][name] = def;
+                return to_setting(def, ctx, name);
+            }
+        });
+    settings_viz.innerHTML = viz.settings
+        .replace(/\{var\}/g, seq.var)
+        .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+            if (settings[ctx] && settings[ctx][name] !== undefined) {
+                return to_setting(settings[ctx][name], ctx, name);
+            } else {
+                if (settings[ctx] === undefined) {
+                    settings[ctx] = {};
+                }
+                settings[ctx][name] = def;
+                return to_setting(def, ctx, name);
+            }
+        });
+}
+
+function to_setting(value, ctx, name) {
+    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText">${value}</span>`;
 }
 
 window.addEventListener("resize", resize_canvas);

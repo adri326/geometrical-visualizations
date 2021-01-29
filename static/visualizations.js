@@ -1,5 +1,5 @@
-function circle_number_modulo(ctx, seq, params) {
-    let modulo = +params["circle-number-modulo"][0];
+function circle_number(ctx, seq, settings) {
+    let modulo = +settings.circle_number.modulo;
     let radius = Math.min(ctx.width, ctx.height) * 0.4;
     let node_radius = 4;
 
@@ -8,7 +8,7 @@ function circle_number_modulo(ctx, seq, params) {
 
     ctx.beginPath();
     ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
-    ctx.strokeStyle = params.colors.main;
+    ctx.strokeStyle = settings.colors.main;
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -68,25 +68,25 @@ function circle_number_modulo(ctx, seq, params) {
         let dy = radius * Math.sin(2 * Math.PI * n / modulo - Math.PI / 2);
         ctx.beginPath();
         ctx.ellipse(x + dx, y + dy, node_radius, node_radius, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = params.colors.bg;
+        ctx.fillStyle = settings.colors.bg;
         ctx.lineWidth = 2;
         ctx.fill();
         ctx.stroke();
     }
 }
-circle_number_modulo.display_name = "Circle & Modulo";
-circle_number_modulo.settings = `
+circle_number.display_name = "Circle & Modulo";
+circle_number.settings = `
 <li>
     Trace {var} modulo
-    <span class="input circle-number-modulo" contenteditable="true">10</span>
+    {circle_number.modulo=10}
     on a numbered circle
 </li>
 `;
 
-function turtle(ctx, seq, params) {
-    let modulo = +params["turtle"][0];
-    let scale = +params["turtle"][1];
-    let n_steps = +params["turtle"][2];
+function turtle(ctx, seq, settings) {
+    let modulo = +settings.turtle.modulo;
+    let scale = +settings.turtle.scale;
+    let n_steps = +settings.turtle.steps;
 
     if (n_steps <= 0) return;
     if (scale <= 0) return;
@@ -132,14 +132,14 @@ function turtle(ctx, seq, params) {
         ctx.lineTo(...pos);
     }
     ctx.lineWidth = 2;
-    ctx.strokeStyle = params.colors.main;
+    ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }
 turtle.display_name = "Turtle & Modulo";
 turtle.settings = `
 <li>
     Use {var} modulo
-    <span class="variable three">m</span> = <span class="input turtle" contenteditable="true">2</span>
+    <span class="variable three">m</span> = {turtle.modulo=2}
     as kernel for a turtle.
 </li>
 <li>
@@ -150,14 +150,14 @@ turtle.settings = `
     .
 </li>
 <li>
-    Scale: <span class="input turtle" contenteditable="true">10</span> px/step — Steps: <span class="input turtle" contenteditable="true">1000</span>
+    Scale: {turtle.scale=10} px/step — Steps: {turtle.steps=1000}
 </li>
 `;
 
-function turtle_mod2(ctx, seq, params) {
-    let modulo = +params["turtle"][0];
-    let scale = +params["turtle"][1];
-    let n_steps = +params["turtle"][2];
+function turtle_mod2(ctx, seq, settings) {
+    let modulo = +settings.turtle_mod2.modulo;
+    let scale = +settings.turtle_mod2.scale;
+    let n_steps = +settings.turtle_mod2.steps;
 
     if (n_steps <= 0) return;
     if (scale <= 0) return;
@@ -205,14 +205,14 @@ function turtle_mod2(ctx, seq, params) {
         ctx.lineTo(...pos);
     }
     ctx.lineWidth = 2;
-    ctx.strokeStyle = params.colors.main;
+    ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }
 turtle_mod2.display_name = "Turtle mod 2";
 turtle_mod2.settings = `
 <li>
     Use {var} modulo
-    <span class="variable three">m</span> = <span class="input turtle" contenteditable="true">2</span>
+    <span class="variable three">m</span> = {turtle_mod2.modulo=3}
     as kernel for a turtle.
 </li>
 <li>
@@ -223,12 +223,12 @@ turtle_mod2.settings = `
     .
 </li>
 <li>
-    Scale: <span class="input turtle" contenteditable="true">10</span> px/step — Steps: <span class="input turtle" contenteditable="true">1000</span>
+    Scale: {turtle_mod2.scale=10} px/step — Steps: {turtle_mod2.steps=1000}
 </li>
 `;
 
 const VIZ = {
-    circle_number_modulo,
+    circle_number,
     turtle,
     turtle_mod2,
 };
