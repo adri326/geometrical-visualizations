@@ -1,6 +1,6 @@
 function* fibonacci(params) {
-    let a = +params.fibonacci[0];
-    let b = +params.fibonacci[1];
+    let a = BigInt(params.fibonacci[0]);
+    let b = BigInt(params.fibonacci[1]);
 
     yield a;
     yield b;
@@ -29,11 +29,11 @@ fibonacci.settings = `
 `;
 
 function* polynomial(params) {
-    let a = +params.polynomial[0];
-    let b = +params.polynomial[1];
+    let a = BigInt(params.polynomial[0]);
+    let b = BigInt(params.polynomial[1]);
 
-    for (let n = 0; true; n++) {
-        yield a * Math.pow(n, b);
+    for (let n = 0n; true; n = n + 1n) {
+        yield a * (n ** b);
     }
 }
 polynomial.display_name = "Polynomial";
@@ -48,11 +48,11 @@ polynomial.settings = `
 `;
 
 function* exponential(params) {
-    let a = +params.exponential[0];
-    let q = +params.exponential[1];
+    let a = BigInt(params.exponential[0]);
+    let q = BigInt(params.exponential[1]);
 
-    for (let n = 0; true; n++) {
-        yield a * Math.pow(q, n);
+    for (let n = 0n; true; n = n + 1n) {
+        yield a * (q ** n);
     }
 }
 exponential.display_name = "Exponential";

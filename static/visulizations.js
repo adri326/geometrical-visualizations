@@ -30,8 +30,8 @@ function circle_number_modulo(ctx, seq, params) {
 
     for (let n = 0; (n < modulo || !is_pattern_repeated()) && n <= modulo ** 2; n++) {
         let next = seq.next();
-        if (!isNaN(+next.value)) {
-            pattern.push(+next.value % modulo);
+        if (next.value !== undefined) {
+            pattern.push(Number(next.value % BigInt(modulo)));
         } else {
             break;
         }
