@@ -15,27 +15,27 @@
             <canvas id="canvas">
                 Your browser doesn't support canvases :(
             </canvas>
+            <noscript>
+                This app requires javascript to work!
+            </noscript>
         </main>
         <footer>
-            <ul id="settings">
-                <li><span class="variable one">F</span><sub>0</sub> = <span class="input fibonacci" contenteditable="true">0</span></li>
-                <li><span class="variable one">F</span><sub>1</sub> = <span class="input fibonacci" contenteditable="true">1</span></li>
-                <li>
-                    ∀ <span class="variable two">n</span> > 1,
-                    <span class="variable one">F</span>
-                        <sub><span class="variable two">n</span></sub>
-                    = <span class="variable one">F</span>
-                        <sub><span class="variable two">n</span>-1</sub>
-                    + <span class="variable one">F</span>
-                        <sub><span class="variable two">n</span>-2</sub>
-                </li>
-                <li>Trace
-                    <span class="variable one">F</span>
-                        <sub><span class="variable two">n</span></sub>
-                    modulo <span class="input circle-number-modulo" contenteditable="true">10</span>
-                    on a numbered circle
-                </li>
-            </ul>
+            <div id="selection">
+                <select id="seq" name="seq"></select>
+                <span class="arrow">→</span>
+                <select id="viz" name="viz"></select>
+            </div>
+            <div id="settings">
+                <ul id="settings-seq"></ul>
+                <ul id="settings-viz">
+                    <li>Trace
+                        <span class="variable one">F</span>
+                            <sub><span class="variable two">n</span></sub>
+                        modulo <span class="input circle-number-modulo" contenteditable="true">10</span>
+                        on a numbered circle
+                    </li>
+                </ul>
+            </div>
         </footer>
     </body>
 </html>

@@ -74,6 +74,14 @@ function circle_number_modulo(ctx, seq, params) {
         ctx.stroke();
     }
 }
+circle_number_modulo.display_name = "Circle & Modulo";
+circle_number_modulo.settings = `
+<li>
+    Trace {var} modulo
+    <span class="input circle-number-modulo" contenteditable="true">10</span>
+    on a numbered circle
+</li>
+`;
 
 const VIZ = {
     circle_number_modulo,

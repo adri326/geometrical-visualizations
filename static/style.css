@@ -36,13 +36,41 @@ footer {
     font-size: 14pt;
 }
 
-#settings {
+#selection {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#selection .arrow {
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+#selection select {
+    margin: 2px 4px;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    color: #e5e5e5;
+    transition: border-color 0.2s, color 0.2s;
+    appearance: none;
+    font-size: 14pt;
+    font-family: 'Roboto Mono', monospace;
+}
+
+#selection select:hover, #selection select:active {
+    color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#settings-viz, #settings-seq {
     list-style-type: none;
     padding: 0;
     line-height: calc(1.5em + 6px);
 }
 
-#settings > li {
+#settings li {
     text-align: center;
 }
 
