@@ -86,12 +86,13 @@ circle_number_modulo.settings = `
 function turtle(ctx, seq, params) {
     let modulo = +params["turtle"][0];
     let scale = +params["turtle"][1];
+    let n_steps = +params["turtle"][2];
 
+    if (n_steps <= 0) return;
     if (scale <= 0) return;
     if (modulo <= 0) return;
 
     // Might need to bring this down for more expensive algorithms
-    let n_steps = (Math.max(ctx.width, ctx.height) * 1);
     let min_dimension = Math.min(ctx.width, ctx.height);
 
     let pattern = [];
@@ -149,7 +150,7 @@ turtle.settings = `
     .
 </li>
 <li>
-    Scale: <span class="input turtle" contenteditable="true">10</span> px/step.
+    Scale: <span class="input turtle" contenteditable="true">10</span> px/step — Steps: <span class="input turtle" contenteditable="true">1000</span>
 </li>
 `;
 
