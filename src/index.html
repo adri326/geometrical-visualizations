@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Geometrical visualizations</title>
+        <meta charset="utf8" />
+        <link rel="stylesheet" href="/static/style.css">
+        <script src="/static/sequences.js" defer></script>
+        <script src="/static/visulizations.js" defer></script>
+        <script src="/static/main.js" defer></script>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <main>
+            <canvas id="canvas">
+                Your browser doesn't support canvases :(
+            </canvas>
+        </main>
+        <footer>
+            <ul id="settings">
+                <li><span class="variable one">F</span><sub>0</sub> = <span class="input fibonacci" contenteditable="true">0</span></li>
+                <li><span class="variable one">F</span><sub>1</sub> = <span class="input fibonacci" contenteditable="true">1</span></li>
+                <li>
+                    ∀ <span class="variable two">n</span> > 1,
+                    <span class="variable one">F</span>
+                        <sub><span class="variable two">n</span></sub>
+                    = <span class="variable one">F</span>
+                        <sub><span class="variable two">n</span>-1</sub>
+                    + <span class="variable one">F</span>
+                        <sub><span class="variable two">n</span>-2</sub>
+                </li>
+                <li>Trace
+                    <span class="variable one">F</span>
+                        <sub><span class="variable two">n</span></sub>
+                    modulo <span class="input circle-number-modulo" contenteditable="true">10</span>
+                    on a numbered circle
+                </li>
+            </ul>
+        </footer>
+    </body>
+</html>

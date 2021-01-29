@@ -1,0 +1,79 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #34373b;
+    color: #e5e5e5;
+    font-family: 'Lato', sans-serif;
+    overflow-x: hidden;
+
+    --variable-1: #a9d0df;
+    --variable-2: #e6bcaa;
+    --variable-3: #cf99c9;
+}
+
+main {
+    height: 70vh;
+}
+
+#canvas {
+    height: 70vh;
+    width: 100vw;
+}
+
+footer {
+    flex-grow: 1;
+    min-height: 30vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 14pt;
+}
+
+#settings {
+    list-style-type: none;
+    padding: 0;
+    line-height: calc(1.5em + 6px);
+}
+
+#settings > li {
+    text-align: center;
+}
+
+#settings .input {
+    display: inline;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 500;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    color: #ffffff;
+    padding: 2px 5px;
+    width: fit-content;
+    min-width: 1em;
+    transition: border-color 0.2s;
+}
+
+#settings .input:hover, #settings .input:active {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#settings .variable {
+    font-weight: 500;
+}
+
+#settings .variable.one {
+    color: var(--variable-1);
+}
+#settings .variable.two {
+    color: var(--variable-2);
+}
+#settings .variable.three {
+    color: var(--variable-3);
+}

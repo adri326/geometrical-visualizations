@@ -1,0 +1,29 @@
+{
+  "name": "geometrical-visualizations",
+  "version": "1.0.0",
+  "description": "Visualize integer sequences and other mathematically-defined objects in your browser",
+  "main": "server/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adri326/geometrical-visualizations.git"
+  },
+  "keywords": [
+    "geometry",
+    "visualization",
+    "sequence"
+  ],
+  "author": "Shad Amethyst",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adri326/geometrical-visualizations/issues"
+  },
+  "homepage": "https://github.com/adri326/geometrical-visualizations#readme",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.17.1",
+    "express-minify": "^1.0.0"
+  }
+}
