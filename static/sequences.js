@@ -66,8 +66,32 @@ exponential.settings = `
     </li>
 `;
 
+function* primes(params) {
+    yield 2n;
+    yield 3n;
+
+    for (let n = 5n; true; n += 2n) {
+        if (n % 2n == 0n) continue;
+        let prime = true;
+        for (let p = 3n; p * p <= n; p++) {
+            if (n % p == 0n) prime = false;
+        }
+        if (prime) {
+            yield n;
+        }
+    }
+}
+primes.display_name = "Prime numbers";
+primes.var = `<span class="variable one">P</span><sub><span class="variable two">n</span></sub>`;
+primes.settings = `
+    <li>
+        Let <span class="variable one">P</span><sub><span class="variable two">n</span></sub> be the <span class="variable two">n</span>-th prime.
+    </li>
+`;
+
 const SEQ = {
     fibonacci,
     polynomial,
     exponential,
+    primes,
 };
