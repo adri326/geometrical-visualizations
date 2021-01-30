@@ -185,7 +185,7 @@ function update_settings() {
     settings_seq.innerHTML = seq.settings
         .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
             if (settings[ctx] && settings[ctx][name] !== undefined) {
-                return to_setting(settings[ctx][name], ctx, name);
+                return to_setting(settings[ctx][name], ctx, name, true);
             } else {
                 if (settings[ctx] === undefined) {
                     settings[ctx] = {};
@@ -202,7 +202,7 @@ function update_settings() {
             .replace(/\{var\}/g, var_name)
             .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
                 if (settings[ctx] && settings[ctx][name] !== undefined) {
-                    return to_setting(settings[ctx][name], ctx, name);
+                    return to_setting(settings[ctx][name], ctx, name, false);
                 } else {
                     if (settings[ctx] === undefined) {
                         settings[ctx] = {};
@@ -220,7 +220,7 @@ function update_settings() {
         .replace(/\{var\}/g, var_name)
         .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
             if (settings[ctx] && settings[ctx][name] !== undefined) {
-                return to_setting(settings[ctx][name], ctx, name);
+                return to_setting(settings[ctx][name], ctx, name, false);
             } else {
                 if (settings[ctx] === undefined) {
                     settings[ctx] = {};

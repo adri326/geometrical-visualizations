@@ -20,6 +20,8 @@ body {
     --variable-1: #a9d0df;
     --variable-2: #e6bcaa;
     --variable-3: #cf99c9;
+
+    transition: background-color 0.2s, color 0.2s;
 }
 
 main {
@@ -141,7 +143,7 @@ footer .input {
     color: var(--button-foreground);
     padding: 2px 5px;
     min-width: 1em;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, color 0.2s;
     font-size: inherit;
 }
 
@@ -223,6 +225,7 @@ footer .input:hover, footer .input:active {
     padding-left: 6px;
     padding-right: 6px;
     font-weight: 600;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 @media only screen and (max-aspect-ratio: 1.2) {

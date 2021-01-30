@@ -143,11 +143,31 @@ collatz.settings = `
     </li>
 `;
 
+function* random(settings) {
+    let min = +settings.random.min;
+    let max = +settings.random.max;
+
+    if (isNaN(min) || isNaN(max)) return;
+
+    while (true) {
+        yield BigInt(Math.floor(min + Math.random() * (max - min)));
+    }
+}
+random.display_name = "Random";
+random.var = `<span class="variable one">R</span>(<span class="variable two">n</span>)`;
+random.settings = `
+    <li>
+        Let <span class="variable one">R</span> be the random function, which yields random numbers between {random.min=0} and {random.max=10}
+        (<button class="input" type="button" onclick="cache_seq = null; redraw_canvas();">Reroll</button>).
+    </li>
+`;
+
 const SEQ = {
     fibonacci,
     polynomial,
     exponential,
     primes,
     dprimes,
-    collatz
+    collatz,
+    random,
 };
