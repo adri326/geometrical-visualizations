@@ -76,7 +76,7 @@ function circle_number(ctx, seq, settings) {
         ctx.stroke();
     }
 }
-circle_number.display_name = "Circle & Modulo";
+circle_number.display_name = "Modulus Circle";
 circle_number.settings = `
 <li>
     Trace {var} modulo
@@ -146,11 +146,11 @@ function turtle(ctx, seq, settings) {
     ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }
-turtle.display_name = "Turtle & Modulo";
+turtle.display_name = "Turtle modulo m";
 turtle.settings = `
 <li>
     Use {var} modulo
-    <span class="variable three">m</span> = {turtle.modulo=2}
+    <span class="variable three">m</span> = {turtle.modulo=3}
     as kernel for a turtle.
 </li>
 <li>
@@ -169,6 +169,7 @@ function turtle_mod2(ctx, seq, settings) {
     let modulo = +settings.turtle_mod2.modulo;
     let scale = +settings.turtle_mod2.scale;
     let n_steps = +settings.turtle_mod2.steps;
+    let noop = settings.turtle_mod2.noop.toLowerCase().startsWith("y");
 
     if (n_steps <= 0) return;
     if (scale <= 0) return;
@@ -187,6 +188,7 @@ function turtle_mod2(ctx, seq, settings) {
         if (next.value !== undefined) {
             let value = Number(next.value % BigInt(modulo));
             pattern.push(value);
+            if (noop && value == 0) continue;
             pos[0] += scale * Math.cos(direction);
             pos[1] += scale * Math.sin(direction);
 
@@ -212,6 +214,7 @@ function turtle_mod2(ctx, seq, settings) {
     ctx.beginPath();
     ctx.moveTo(...pos);
     for (let value of pattern) {
+        if (noop && value == 0) continue;
         pos[0] += scale * Math.cos(direction);
         pos[1] += scale * Math.sin(direction);
         if (value % 2 == 0) direction -= 0.5 * Math.PI;
@@ -222,11 +225,11 @@ function turtle_mod2(ctx, seq, settings) {
     ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }
-turtle_mod2.display_name = "Turtle mod 2";
+turtle_mod2.display_name = "Turtle modulo 2";
 turtle_mod2.settings = `
 <li>
     Use {var} modulo
-    <span class="variable three">m</span> = {turtle_mod2.modulo=3}
+    <span class="variable three">m</span> = {turtle_mod2.modulo=10}
     as kernel for a turtle.
 </li>
 <li>
@@ -235,6 +238,9 @@ turtle_mod2.settings = `
     and 90° right if
         {var} mod <span class="variable three">m</span> is odd
     .
+</li>
+<li>
+    Do nothing if {var} mod <span class="variable three">m</span> = 0: {turtle_mod2.noop=yes} (yes/no).
 </li>
 <li>
     Scale: {turtle_mod2.scale=10} px/step — Steps: {turtle_mod2.steps=1000}
@@ -289,7 +295,7 @@ bar_graph.settings = `
 
 const VIZ = {
     circle_number,
-    turtle,
     turtle_mod2,
+    turtle,
     bar_graph,
 };
