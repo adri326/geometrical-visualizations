@@ -1,6 +1,7 @@
 let canvas, ctx;
 
 let export_button, export_width_dom, export_height_dom, export_background_dom;
+let newtab_button;
 
 // Object containing all of the settings
 let settings_dom;
@@ -99,11 +100,13 @@ window.addEventListener("load", () => {
         resize_canvas();
     });
 
+    newtab_button = document.getElementById("export-new-tab");
     export_button = document.getElementById("export-to-png");
     export_width_dom = document.getElementById("export-width");
     export_height_dom = document.getElementById("export-height");
     export_background_dom = document.getElementById("export-background");
-    export_button.addEventListener("click", export_to_png);
+    export_button.addEventListener("click", () => export_to_png(false));
+    newtab_button.addEventListener("click", () => export_to_png(true));
 
 
     resize_canvas();
@@ -130,8 +133,8 @@ function redraw_canvas(bg = false, exp = false) {
 }
 
 function resize_canvas() {
-    ctx.width = canvas.width = canvas.clientWidth;
-    ctx.height = canvas.height = canvas.clientHeight;
+    ctx.width = canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    ctx.height = canvas.height = canvas.clientHeight * window.devicePixelRatio;
 
     redraw_canvas();
 }
@@ -267,7 +270,7 @@ function to_setting(value, ctx, name, drop_cache = false) {
     return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "cache_seq = null;" : ""}">${value}</span>`;
 }
 
-function export_to_png() {
+function export_to_png(new_tab) {
     console.log("Hello world");
     let width = +export_width_dom.value;
     let height = +export_height_dom.value;
@@ -275,13 +278,33 @@ function export_to_png() {
     ctx.width = canvas.width = width;
     ctx.height = canvas.height = height;
 
-    redraw_canvas(export_background_dom.checked, true);
+    redraw_canvas(!export_background_dom.checked, true);
     let url = canvas.toDataURL("image/png");
 
     resize_canvas();
 
-    let win = window.open(url, "_blank");
-    window.win = win;
+    if (new_tab) {
+
+        let win = window.open();
+        win.document.write(`<img src=${url} />`);
+        win.document.body.style.display = "flex";
+        win.document.body.style.alignItems = "center";
+        win.document.body.style.justifyContent = "center";
+        win.document.body.style.minHeight = "100vh";
+        win.document.body.style.margin = 0;
+
+    } else {
+        let a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        let download = current_seq;
+        if (METHODS[method].transformation) download += "-" + current_trans;
+        download += "-" + current_viz;
+        download += "-" + width + "x" + height;
+        download += ".png";
+        a.download = download;
+        a.click();
+    }
 }
 
 window.addEventListener("resize", resize_canvas);

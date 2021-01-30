@@ -70,7 +70,9 @@ function circle_number(ctx, seq, settings) {
         ctx.ellipse(x + dx, y + dy, node_radius, node_radius, 0, 0, 2 * Math.PI);
         ctx.fillStyle = settings.colors.bg;
         ctx.lineWidth = 2;
+        ctx.globalCompositeOperation = "destination-out";
         ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
         ctx.stroke();
     }
 }

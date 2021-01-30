@@ -63,7 +63,7 @@ footer .arrow {
 
 footer select {
     margin: 2px 4px;
-    background: none;
+    background: var(--background);
     border: 1px solid var(--button-outline);
     border-radius: 2px;
     color: var(--foreground);
@@ -116,7 +116,9 @@ footer option {
 }
 
 #export button {
-    margin: 0.9em 0.9em;
+    margin-top: 0.9em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }
 
 footer button.input {

@@ -3,6 +3,7 @@
     <head>
         <title>Geometrical visualizations</title>
         <meta charset="utf8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/static/style.css">
         <script src="/static/sequences.js" defer></script>
         <script src="/static/cache.js" defer></script>
@@ -57,8 +58,9 @@
                             <input type="number" class="input" id="export-height" value="1024" />
                         </span>
                     </div>
-                    <span>Fill background: <input type="checkbox" id="export-background" /></span>
+                    <span>Transparent background: <input type="checkbox" id="export-background" /></span>
                     <button class="input" id="export-to-png" type="button">Export to PNG</button>
+                    <button class="input" id="export-new-tab" type="button">Open in new tab</button>
                 </div>
                 <div id="colors">
                     <div>Background: <input type="color" id="color-background" value="#34373b" /></div>
