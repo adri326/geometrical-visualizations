@@ -4,7 +4,7 @@ function spiral(seq, settings) {
     if (isNaN(loops) || loops <= 0) return [[]];
 
     let size = 2 * loops + 1;
-    let res = [...new Array(size)].map(_ => [...new Array(size)].fill(0n));
+    let res = zero_matrix(size, size);
 
     let dist = 2;
     let x = loops;
@@ -69,8 +69,8 @@ function spiral_count(seq, settings) {
     if (isNaN(loops) || isNaN(n_steps) || loops <= 0 || n_steps <= 0) return [[]];
 
     let size = 2 * loops + 1;
-    let res = [...new Array(size)].map(_ => [...new Array(size)].fill(0n));
-    let indices = [...new Array(size)].map(_ => [...new Array(size)].fill(0));
+    let res = zero_matrix(size, size);
+    let indices = zero_matrix(size, size);
 
     let dist = 2;
     let x = loops;
@@ -127,7 +127,7 @@ function spiral_count(seq, settings) {
         }
     }
 
-    console.table(res);
+    // console.table(res);
     return res;
 }
 spiral_count.display_name = "Spiral Count";
@@ -143,7 +143,63 @@ spiral_count.settings = `
     </li>
 `;
 
+function ant(seq, settings) {
+    let width = +settings.ant.width;
+    let height = +settings.ant.height;
+    let n_steps = +settings.ant.steps;
+    let modulo = BigInt(settings.ant.modulo);
+
+    if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0 || isNaN(n_steps) || modulo <= 0n) return [[]];
+
+    let res = zero_matrix(width, height);
+
+    let x = Math.floor(width / 2);
+    let y = Math.floor(height / 2);
+    let dir = 0;
+    for (let n = 0; n < n_steps; n++) {
+        res[y][x] += 1n;
+        if (dir == 0) {
+            y = (y + 1) % height;
+        } else if (dir == 1) {
+            x = (x - 1 + width) % width;
+        } else if (dir == 2) {
+            y = (y - 1 + height) % height;
+        } else {
+            x = (x + 1) % width;
+        }
+
+        let next = seq.next();
+        if (next.value !== undefined) {
+            if ((next.value % modulo) % 2n == 0n) {
+                dir = (dir + 3) % 4;
+            } else {
+                dir = (dir + 1) % 4;
+            }
+        }
+    }
+
+    return res;
+}
+ant.display_name = "Ant (Torus)";
+ant.var = `<span class="variable one bold">T</span><sub><span class="variable two">x</span>,<span class="variable two">y</span></sub>`;
+ant.settings = `
+    <li>
+        Run an ant on a {ant.width=10}x{ant.height=10} torus that does {ant.steps=1000} steps.
+    </li>
+    <li>
+        For each step, the ant adds 1 to the current square and goes forward.
+    </li>
+    <li>
+        If {var} modulo {ant.modulo=3} is even, it turns left, otherwise it turns right.
+    </li>
+`;
+
 const MAT_TRANS = {
     spiral,
     spiral_count,
+    ant,
 };
+
+function zero_matrix(width, height) {
+    return [...new Array(height)].map(_ => [...new Array(width)].fill(0n));
+}
