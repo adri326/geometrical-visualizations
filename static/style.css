@@ -8,11 +8,15 @@ body {
     flex-direction: column;
     min-height: 100vh;
     background-color: var(--background);
-    color: #e5e5e5;
+    color: var(--foreground);
     font-family: 'Lato', sans-serif;
     overflow-x: hidden;
 
     --background: #34373b;
+    --foreground: #e5e5e5;
+    --button-foreground: #ffffff;
+    --button-outline: rgba(0, 0, 0, 0.25);
+    --button-outline-focused: rgba(0, 0, 0, 0.5);
     --variable-1: #a9d0df;
     --variable-2: #e6bcaa;
     --variable-3: #cf99c9;
@@ -58,9 +62,9 @@ footer .arrow {
 footer select {
     margin: 2px 4px;
     background: none;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--button-outline);
     border-radius: 2px;
-    color: #e5e5e5;
+    color: var(--foreground);
     transition: border-color 0.2s, color 0.2s;
     appearance: none;
     font-size: 14pt;
@@ -71,8 +75,8 @@ footer select {
 }
 
 footer select:hover, footer select:active {
-    color: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.5);
+    color: var(--button-foreground);
+    border: 1px solid var(--button-outline-focused);
 }
 
 footer option {
@@ -100,7 +104,6 @@ footer option {
     display: flex;
     flex-direction: column;
     align-items: center;
-    order: 2;
 }
 
 #export > #dimensions {
@@ -111,7 +114,7 @@ footer option {
 }
 
 #export button {
-    margin: 0.2em 0.9em;
+    margin: 0.9em 0.9em;
 }
 
 footer button.input {
@@ -119,7 +122,7 @@ footer button.input {
 }
 
 footer button.input:hover {
-    border-color: #e5e5e5;
+    border-color: var(--foreground);
 }
 
 footer .input[type="number"] {
@@ -133,9 +136,9 @@ footer .input {
     font-family: 'Roboto Mono', monospace;
     font-weight: 500;
     background: none;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--button-outline);
     border-radius: 3px;
-    color: #ffffff;
+    color: var(--button-foreground);
     padding: 2px 5px;
     min-width: 1em;
     transition: border-color 0.2s;
@@ -143,7 +146,7 @@ footer .input {
 }
 
 footer .input:hover, footer .input:active {
-    border: 1px solid rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--button-outline-focused);
 }
 
 #settings .variable {
@@ -170,10 +173,20 @@ footer .input:hover, footer .input:active {
     justify-content: center;
 }
 
+#colors {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-#export, #settings, #method, #selection {
+#colors > div {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#export, #settings, #method, #selection, #colors {
     position: relative;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--foreground);
     padding-top: 1em;
     margin-bottom: 1em;
     margin-top: 1em;
@@ -197,7 +210,11 @@ footer .input:hover, footer .input:active {
     content: "Selection";
 }
 
-#export::before, #settings::before, #method::before, #selection::before {
+#colors::before {
+    content: "Colors";
+}
+
+#export::before, #settings::before, #method::before, #selection::before, #colors::before {
     position: absolute;
     left: 50%;
     top: 0%;

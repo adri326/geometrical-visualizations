@@ -13,6 +13,8 @@ let current_viz = "circle_number_modulo";
 let current_seq = "fibonacci";
 let current_trans = "spiral";
 
+let color_background, color_foreground, color_reset;
+
 let cache_seq = null;
 
 let settings = {
@@ -61,6 +63,12 @@ window.addEventListener("load", () => {
     select_viz = document.getElementById("viz");
     select_trans = document.getElementById("trans");
     select_seq = document.getElementById("seq");
+
+    color_reset = document.getElementById("color-reset");
+    color_background = document.getElementById("color-background");
+    color_foreground = document.getElementById("color-foreground");
+
+    update_colors();
     update_dropdowns();
     update_settings();
     select_seq.addEventListener("change", () => {
@@ -76,11 +84,27 @@ window.addEventListener("load", () => {
         resize_canvas();
     });
 
+    color_background.addEventListener("change", () => {
+        update_colors();
+        resize_canvas();
+    });
+    color_foreground.addEventListener("change", () => {
+        update_colors();
+        resize_canvas();
+    });
+    color_reset.addEventListener("click", () => {
+        color_background.value = "#34373b";
+        color_foreground.value = "#e5e5e5";
+        update_colors();
+        resize_canvas();
+    });
+
     export_button = document.getElementById("export-to-png");
     export_width_dom = document.getElementById("export-width");
     export_height_dom = document.getElementById("export-height");
     export_background_dom = document.getElementById("export-background");
     export_button.addEventListener("click", export_to_png);
+
 
     resize_canvas();
 });
@@ -209,6 +233,36 @@ function update_settings() {
     cache_seq = null;
 }
 
+function update_colors() {
+    let foreground = color_foreground.value;
+    let background = color_background.value;
+
+    settings.colors.main = foreground;
+    settings.colors.bg = background;
+
+    document.body.style.setProperty("--background", background);
+    let [br, bg, bb] = background.slice(1).match(/[0-9a-f]{2}/g).map(raw => Number.parseInt(raw, 16));
+    if (br * 0.299 + bg * 0.587 + bb * 0.114 > 186) {
+        document.body.style.setProperty("--foreground", "#080808");
+        document.body.style.setProperty("--button-foreground", "#000000");
+        document.body.style.setProperty("--button-outline", "rgba(0, 0, 0, 0.25)");
+        document.body.style.setProperty("--button-outline-focused", "rgba(0, 0, 0, 0.5)");
+
+        document.body.style.setProperty("--variable-1", "#29404f");
+        document.body.style.setProperty("--variable-2", "#563c2a");
+        document.body.style.setProperty("--variable-3", "#3f0939");
+    } else {
+        document.body.style.setProperty("--foreground", "#e5e5e5");
+        document.body.style.setProperty("--button-foreground", "#ffffff");
+        document.body.style.setProperty("--button-outline", "rgba(255, 255, 255, 0.1)");
+        document.body.style.setProperty("--button-outline-focused", "rgba(255, 255, 255, 0.5)");
+
+        document.body.style.setProperty("--variable-1", "#a9d0df");
+        document.body.style.setProperty("--variable-2", "#e6bcaa");
+        document.body.style.setProperty("--variable-3", "#cf99c9");
+    }
+}
+
 function to_setting(value, ctx, name, drop_cache = false) {
     return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "cache_seq = null;" : ""}">${value}</span>`;
 }
@@ -225,7 +279,6 @@ function export_to_png() {
     let url = canvas.toDataURL("image/png");
 
     resize_canvas();
-    redraw_canvas();
 
     let win = window.open(url, "_blank");
     window.win = win;
