@@ -85,7 +85,7 @@ window.addEventListener("load", () => {
     resize_canvas();
 });
 
-function redraw_canvas(bg = false) {
+function redraw_canvas(bg = false, exp = false) {
     ctx.clearRect(0, 0, ctx.width, ctx.height);
     if (bg) {
         ctx.fillStyle = settings.colors.bg;
@@ -99,9 +99,9 @@ function redraw_canvas(bg = false) {
 
     if (METHODS[method].transformation) {
         let mat = METHODS[method].trans[current_trans](cache_seq, settings);
-        METHODS[method].viz[current_viz](ctx, mat, settings);
+        METHODS[method].viz[current_viz](ctx, mat, settings, exp);
     } else {
-        METHODS[method].viz[current_viz](ctx, cache_seq, settings);
+        METHODS[method].viz[current_viz](ctx, cache_seq, settings, exp);
     }
 }
 
@@ -221,7 +221,7 @@ function export_to_png() {
     ctx.width = canvas.width = width;
     ctx.height = canvas.height = height;
 
-    redraw_canvas(export_background_dom.checked);
+    redraw_canvas(export_background_dom.checked, true);
     let url = canvas.toDataURL("image/png");
 
     resize_canvas();

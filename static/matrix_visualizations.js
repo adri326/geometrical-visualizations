@@ -1,4 +1,4 @@
-function matrix_odd(ctx, mat, settings) {
+function matrix_odd(ctx, mat, settings, exp) {
     let modulo = BigInt(settings.matrix_odd.modulo);
     let evenness = settings.matrix_odd.evenness.toLowerCase() === 'even';
 
@@ -10,11 +10,11 @@ function matrix_odd(ctx, mat, settings) {
 
     if (ctx.height / ctx.width >= ratio) {
         // Fit horizontally
-        width = ctx.width * 0.8;
+        width = ctx.width * (exp ? 1 : 0.8);
         height = width * ratio;
     } else {
         // Fit vertically
-        height = ctx.height * 0.8;
+        height = ctx.height * (exp ? 1 : 0.8);
         width = height / ratio;
     }
     width = Math.round(width / mat[0].length) * mat[0].length;
@@ -46,7 +46,7 @@ matrix_odd.settings = `
     </li>
 `;
 
-function matrix_multiple(ctx, mat, settings) {
+function matrix_multiple(ctx, mat, settings, exp) {
     let modulo = BigInt(settings.matrix_multiple.modulo);
     let search = BigInt(settings.matrix_multiple.value);
 
@@ -58,11 +58,11 @@ function matrix_multiple(ctx, mat, settings) {
 
     if (ctx.height / ctx.width >= ratio) {
         // Fit horizontally
-        width = ctx.width * 0.8;
+        width = ctx.width * (exp ? 1 : 0.8);
         height = width * ratio;
     } else {
         // Fit vertically
-        height = ctx.height * 0.8;
+        height = ctx.height * (exp ? 1 : 0.8);
         width = height / ratio;
     }
     width = Math.round(width / mat[0].length) * mat[0].length;
@@ -94,7 +94,7 @@ matrix_multiple.settings = `
     </li>
 `;
 
-function matrix_mod(ctx, mat, settings) {
+function matrix_mod(ctx, mat, settings, exp) {
     let modulo = BigInt(settings.matrix_mod.modulo);
 
     if (modulo <= 1n) return;
@@ -105,11 +105,11 @@ function matrix_mod(ctx, mat, settings) {
 
     if (ctx.height / ctx.width >= ratio) {
         // Fit horizontally
-        width = ctx.width * 0.8;
+        width = ctx.width * (exp ? 1 : 0.8);
         height = width * ratio;
     } else {
         // Fit vertically
-        height = ctx.height * 0.8;
+        height = ctx.height * (exp ? 1 : 0.8);
         width = height / ratio;
     }
     width = Math.round(width / mat[0].length) * mat[0].length;

@@ -123,13 +123,22 @@ function turtle(ctx, seq, settings) {
     direction = 0;
     pos = [ctx.width / 2 - (max_bound[0] + min_bound[0]) / 2, ctx.height / 2 - (max_bound[1] + min_bound[1]) / 2];
 
+    if (modulo == 2 || modulo == 3) {
+        pos[0] = Math.round(pos[0]);
+        pos[1] = Math.round(pos[1]);
+    }
+
     ctx.beginPath();
     ctx.moveTo(...pos);
     for (let value of pattern) {
         pos[0] += scale * Math.cos(direction);
         pos[1] += scale * Math.sin(direction);
         direction += ((value / (modulo - 1)) - 0.5) * Math.PI;
-        ctx.lineTo(...pos);
+        if (modulo < 6) {
+            ctx.lineTo(Math.round(pos[0]), Math.round(pos[1]));
+        } else {
+            ctx.lineTo(...pos);
+        }
     }
     ctx.lineWidth = 2;
     ctx.strokeStyle = settings.colors.main;
@@ -194,6 +203,9 @@ function turtle_mod2(ctx, seq, settings) {
 
     direction = 0;
     pos = [ctx.width / 2 - (max_bound[0] + min_bound[0]) / 2, ctx.height / 2 - (max_bound[1] + min_bound[1]) / 2];
+
+    pos[0] = Math.round(pos[0]);
+    pos[1] = Math.round(pos[1]);
 
     ctx.beginPath();
     ctx.moveTo(...pos);
