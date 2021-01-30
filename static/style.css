@@ -36,18 +36,18 @@ footer {
     font-size: 14pt;
 }
 
-#selection {
+#selection, #method {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-#selection .arrow {
+footer .arrow {
     margin-left: 6px;
     margin-right: 6px;
 }
 
-#selection select {
+footer select {
     margin: 2px 4px;
     background: none;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -57,14 +57,29 @@ footer {
     appearance: none;
     font-size: 14pt;
     font-family: 'Roboto Mono', monospace;
+    text-align-last: center;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
-#selection select:hover, #selection select:active {
+footer select:hover, footer select:active {
     color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-#settings-viz, #settings-seq {
+footer option {
+    text-align: center;
+}
+
+#transformation-selection.hidden {
+    display: none;
+}
+
+#transformation-selection.shown {
+    display: default;
+}
+
+#settings-viz, #settings-seq, #settings-trans {
     list-style-type: none;
     padding: 0;
     line-height: calc(1.5em + 6px);
@@ -83,7 +98,6 @@ footer {
     border-radius: 3px;
     color: #ffffff;
     padding: 2px 5px;
-    width: fit-content;
     min-width: 1em;
     transition: border-color 0.2s;
 }
@@ -104,4 +118,7 @@ footer {
 }
 #settings .variable.three {
     color: var(--variable-3);
+}
+#settings .variable.bold {
+    font-weight: 500;
 }
