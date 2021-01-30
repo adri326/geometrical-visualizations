@@ -1,5 +1,7 @@
 let canvas, ctx;
 
+let export_button, export_width_dom, export_height_dom, export_background_dom;
+
 // Object containing all of the settings
 let settings_dom;
 let settings_viz, settings_trans, settings_seq;
@@ -74,11 +76,21 @@ window.addEventListener("load", () => {
         resize_canvas();
     });
 
+    export_button = document.getElementById("export-to-png");
+    export_width_dom = document.getElementById("export-width");
+    export_height_dom = document.getElementById("export-height");
+    export_background_dom = document.getElementById("export-background");
+    export_button.addEventListener("click", export_to_png);
+
     resize_canvas();
 });
 
-function redraw_canvas() {
+function redraw_canvas(bg = false) {
     ctx.clearRect(0, 0, ctx.width, ctx.height);
+    if (bg) {
+        ctx.fillStyle = settings.colors.bg;
+        ctx.fillRect(0, 0, ctx.width, ctx.height);
+    }
     if (cache_seq === null) {
         cache_seq = new CacheSeq(METHODS[method].seq[current_seq](settings));
     } else {
@@ -141,6 +153,7 @@ function update_dropdowns() {
 function update_settings() {
     current_seq = select_seq.value;
     current_viz = select_viz.value;
+    current_trans = select_trans.value;
     let seq = METHODS[method].seq[current_seq];
     let viz = METHODS[method].viz[current_viz];
     let trans = METHODS[method].transformation ? METHODS[method].trans[current_trans] : null;
@@ -198,6 +211,24 @@ function update_settings() {
 
 function to_setting(value, ctx, name, drop_cache = false) {
     return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "cache_seq = null;" : ""}">${value}</span>`;
+}
+
+function export_to_png() {
+    console.log("Hello world");
+    let width = +export_width_dom.value;
+    let height = +export_height_dom.value;
+
+    ctx.width = canvas.width = width;
+    ctx.height = canvas.height = height;
+
+    redraw_canvas(export_background_dom.checked);
+    let url = canvas.toDataURL("image/png");
+
+    resize_canvas();
+    redraw_canvas();
+
+    let win = window.open(url, "_blank");
+    window.win = win;
 }
 
 window.addEventListener("resize", resize_canvas);

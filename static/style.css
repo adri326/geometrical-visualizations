@@ -7,11 +7,12 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #34373b;
+    background-color: var(--background);
     color: #e5e5e5;
     font-family: 'Lato', sans-serif;
     overflow-x: hidden;
 
+    --background: #34373b;
     --variable-1: #a9d0df;
     --variable-2: #e6bcaa;
     --variable-3: #cf99c9;
@@ -36,6 +37,13 @@ footer {
     font-size: 14pt;
 }
 
+#meta-settings {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 #selection, #method {
     display: flex;
     flex-direction: row;
@@ -50,7 +58,7 @@ footer .arrow {
 footer select {
     margin: 2px 4px;
     background: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 2px;
     color: #e5e5e5;
     transition: border-color 0.2s, color 0.2s;
@@ -74,7 +82,6 @@ footer option {
 #transformation-selection.hidden {
     display: none;
 }
-
 #transformation-selection.shown {
     display: default;
 }
@@ -89,20 +96,53 @@ footer option {
     text-align: center;
 }
 
-#settings .input {
-    display: inline;
+#export {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    order: 2;
+}
+
+#export > #dimensions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 0.5em;
+}
+
+#export button {
+    margin: 0.2em 0.9em;
+}
+
+footer button.input {
+    cursor: pointer;
+}
+
+footer button.input:hover {
+    border-color: #e5e5e5;
+}
+
+footer .input[type="number"] {
+    width: 6em;
+    appearance: textfield;
+    text-align: center;
+}
+
+footer .input {
+    display: inline-block;
     font-family: 'Roboto Mono', monospace;
     font-weight: 500;
     background: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 3px;
     color: #ffffff;
     padding: 2px 5px;
     min-width: 1em;
     transition: border-color 0.2s;
+    font-size: inherit;
 }
 
-#settings .input:hover, #settings .input:active {
+footer .input:hover, footer .input:active {
     border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
@@ -121,4 +161,73 @@ footer option {
 }
 #settings .variable.bold {
     font-weight: 500;
+}
+
+#selection {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+#export, #settings, #method, #selection {
+    position: relative;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 1em;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    max-width: 80vw;
+    width: fit-content;
+}
+
+#export::before {
+    content: "Export";
+}
+
+#settings::before {
+    content: "Settings";
+}
+
+#method::before {
+    content: "Method";
+}
+
+#selection::before {
+    content: "Selection";
+}
+
+#export::before, #settings::before, #method::before, #selection::before {
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform: translateX(-50%) translateY(-60%);
+    background: var(--background);
+    padding-left: 6px;
+    padding-right: 6px;
+    font-weight: 600;
+}
+
+@media only screen and (max-aspect-ratio: 1.2) {
+
+}
+
+@media only screen and (min-aspect-ratio: 1.2) {
+    footer {
+        width: 80vw;
+        margin-left: auto;
+        margin-right: auto;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    #meta-settings {
+        order: -1;
+        max-width: 35vw;
+    }
+
+    #settings {
+        max-width: 35vw;
+    }
 }
