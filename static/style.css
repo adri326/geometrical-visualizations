@@ -30,7 +30,7 @@ main {
 
 #canvas {
     height: 70vh;
-    width: 100vw;
+    width: 100%;
 }
 
 footer {

@@ -241,8 +241,55 @@ turtle_mod2.settings = `
 </li>
 `;
 
+function bar_graph(ctx, seq, settings) {
+    let modulo = BigInt(settings.bar_graph.modulo);
+    let spacing = +settings.bar_graph.spacing;
+    let node_radius = 4;
+
+    let bottom = ctx.height * Number(modulo) / Number(modulo + 2n);
+
+    if (modulo <= 0 || isNaN(spacing) || spacing <= 0) return;
+
+    for (let x = 0; x < ctx.width - spacing / 2; x += spacing) {
+        let next = seq.next();
+        if (next.value !== undefined) {
+            let y = Number(next.value % modulo) / Number(modulo + 2n) * ctx.height;
+            ctx.beginPath();
+            ctx.moveTo(x + spacing / 2, bottom);
+            ctx.lineTo(x + spacing / 2, bottom - y);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = settings.colors.main;
+            ctx.stroke();
+
+            // Draw little node
+            if (spacing > 5) {
+                ctx.beginPath();
+                ctx.ellipse(x + spacing / 2, bottom - y, node_radius, node_radius, 0, 0, 2 * Math.PI);
+                ctx.fillStyle = settings.colors.bg;
+                ctx.strokeStyle = settings.colors.main;
+                ctx.lineWidth = 2;
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.fill();
+                ctx.globalCompositeOperation = "source-over";
+                ctx.stroke();
+            }
+        }
+        if (next.done) break;
+    }
+}
+bar_graph.display_name = "Bar Graph";
+bar_graph.settings = `
+<li>
+    Display {var} modulo {bar_graph.modulo=10} on a bar graph.
+</li>
+<li>
+    Spacing between the bars: {bar_graph.spacing=20} px.
+</li>
+`;
+
 const VIZ = {
     circle_number,
     turtle,
     turtle_mod2,
+    bar_graph,
 };
