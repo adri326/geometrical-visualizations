@@ -293,9 +293,192 @@ bar_graph.settings = `
 </li>
 `;
 
+function loops(ctx, seq, settings) {
+    let max = BigInt(settings.loops.max);
+    let min = BigInt(settings.loops.min);
+    let n_steps = +settings.loops.steps;
+
+    if (isNaN(n_steps) || n_steps <= 0 || min == max) return;
+
+    let dx = ctx.width / Number(max - min + 2n);
+
+    function pos(value) {
+        return [dx * Number(value - min) + dx, ctx.height / 2];
+    }
+
+    let last = null;
+    let identities = [];
+
+    for (let n = 0; n < n_steps; n++) {
+        let next = seq.next();
+        if (next.value !== undefined) {
+            if (last !== null) {
+                if (last === next.value) {
+                    // Draw a little circle later
+                    if (last >= min && last <= max || next.value >= min && next.value <= max) {
+                        if (!identities.find(id => id === last) >= 0) identities.push(last);
+                    }
+                } else if (last >= min && last <= max || next.value >= min && next.value <= max) {
+                    // Draw an arc from `last` to `next.value`
+                    ctx.beginPath();
+                    let [sx, sy] = pos(last);
+                    let [ex, ey] = pos(next.value);
+                    let sr = last < next.value ? 0 : Math.PI;
+                    let er = last < next.value ? Math.PI : 2 * Math.PI;
+                    ctx.ellipse(
+                        (sx + ex) / 2,
+                        (sy + ey) / 2,
+                        Math.abs(sx - ex) / 2,
+                        Math.abs(sx - ex) / 2,
+                        sr,
+                        er,
+                        0,
+                    );
+                    ctx.strokeStyle = settings.colors.main;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                last = next.value;
+            } else {
+                last = next.value;
+            }
+        }
+
+        if (next.done) break;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(...pos(min));
+    ctx.lineTo(...pos(max));
+    ctx.strokeStyle = settings.colors.main;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (ctx.width / Number(max - min) > 10) {
+        for (let x = min; x <= max; x += 1n) {
+            ctx.beginPath();
+            ctx.ellipse(...pos(x), 3, 3, 0, 2 * Math.PI, 0);
+            ctx.fillStyle = settings.colors.main;
+            ctx.fill();
+        }
+        for (let identity of identities) {
+            ctx.beginPath();
+            ctx.ellipse(...pos(identity), 4, 4, 0, 2 * Math.PI, 0);
+            ctx.fillStyle = settings.colors.bg;
+            ctx.lineWidth = 2;
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.fill();
+            ctx.globalCompositeOperation = "source-over";
+            ctx.stroke();
+        }
+    }
+}
+loops.display_name = "Loops";
+loops.settings = `
+<li>
+    Place the {loops.steps=100} first values of {var} on a numbered segment from {loops.min=0} to {loops.max=10};
+</li>
+<li>
+    Draw arcs between adjacent values of {var}; the arc is above the line if the new value is greater than the previous, and below the line otherwise.
+</li>
+`;
+
+function loops_modulo(ctx, seq, settings) {
+    let modulo = BigInt(settings.loops_modulo.modulo);
+    let min = BigInt(settings.loops_modulo.min);
+    let n_steps = +settings.loops_modulo.steps;
+
+    if (isNaN(n_steps) || n_steps <= 0 || modulo <= 0n || min >= modulo - 1n) return;
+
+    let dx = Math.min(ctx.width, ctx.height) / Number(modulo + 2n);
+    let sx = ctx.width / 2 - dx * Number(modulo - min - 1n) / 2;
+
+    function pos(value) {
+        return [dx * Number((value % modulo) - min) + sx, ctx.height / 2];
+    }
+
+    let last = null;
+    let identities = [];
+
+    for (let n = 0; n < n_steps; n++) {
+        let next = seq.next();
+        if (next.value !== undefined) {
+            if (last !== null) {
+                if (last === next.value) {
+                    // Draw a little circle later
+                    if (!identities.find(id => id === last) >= 0) identities.push(last);
+                } else {
+                    // Draw an arc from `last` to `next.value`
+                    ctx.beginPath();
+                    let [sx, sy] = pos(last);
+                    let [ex, ey] = pos(next.value);
+                    let sr = sx < ex ? 0 : Math.PI;
+                    let er = sx < ex ? Math.PI : 2 * Math.PI;
+                    ctx.ellipse(
+                        (sx + ex) / 2,
+                        (sy + ey) / 2,
+                        Math.abs(sx - ex) / 2,
+                        Math.abs(sx - ex) / 2,
+                        sr,
+                        er,
+                        0,
+                    );
+                    ctx.strokeStyle = settings.colors.main;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                last = next.value;
+            } else {
+                last = next.value;
+            }
+        }
+
+        if (next.done) break;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(...pos(min));
+    ctx.lineTo(...pos(modulo - 1n));
+    ctx.strokeStyle = settings.colors.main;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (dx > 10) {
+        for (let x = min; x < modulo; x += 1n) {
+            ctx.beginPath();
+            ctx.ellipse(...pos(x), 3, 3, 0, 2 * Math.PI, 0);
+            ctx.fillStyle = settings.colors.main;
+            ctx.fill();
+        }
+        for (let identity of identities) {
+            ctx.beginPath();
+            ctx.ellipse(...pos(identity), 4, 4, 0, 2 * Math.PI, 0);
+            ctx.fillStyle = settings.colors.bg;
+            ctx.lineWidth = 2;
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.fill();
+            ctx.globalCompositeOperation = "source-over";
+            ctx.stroke();
+        }
+    }
+}
+loops_modulo.display_name = "Loops (Modulo)";
+loops_modulo.settings = `
+<li>
+    Place the {loops_modulo.steps=100} first values of {var} modulo
+    <span class="variable three">m</span> = {loops_modulo.modulo=23}
+    on a numbered segment from {loops_modulo.min=0} to <span class="variable three">m</span> - 1;
+</li>
+<li>
+    Draw arcs between values of {var}; the arc is above the line if the new value is greater than the previous, and below the line otherwise.
+</li>
+`;
+
 const VIZ = {
     circle_number,
     turtle_mod2,
     turtle,
     bar_graph,
+    loops,
+    loops_modulo,
 };
