@@ -308,6 +308,7 @@ function loops(ctx, seq, settings) {
 
     let last = null;
     let identities = [];
+    let pairs = [];
 
     for (let n = 0; n < n_steps; n++) {
         let next = seq.next();
@@ -316,27 +317,30 @@ function loops(ctx, seq, settings) {
                 if (last === next.value) {
                     // Draw a little circle later
                     if (last >= min && last <= max || next.value >= min && next.value <= max) {
-                        if (!identities.find(id => id === last) >= 0) identities.push(last);
+                        if (identities.findIndex(id => id === last) < 0) identities.push(last);
                     }
                 } else if (last >= min && last <= max || next.value >= min && next.value <= max) {
-                    // Draw an arc from `last` to `next.value`
-                    ctx.beginPath();
-                    let [sx, sy] = pos(last);
-                    let [ex, ey] = pos(next.value);
-                    let sr = last < next.value ? 0 : Math.PI;
-                    let er = last < next.value ? Math.PI : 2 * Math.PI;
-                    ctx.ellipse(
-                        (sx + ex) / 2,
-                        (sy + ey) / 2,
-                        Math.abs(sx - ex) / 2,
-                        Math.abs(sx - ex) / 2,
-                        sr,
-                        er,
-                        0,
-                    );
-                    ctx.strokeStyle = settings.colors.main;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
+                    if (pairs.findIndex(([a, b]) => a === last && b === next.value) == -1) {
+                        pairs.push([last, next.value]);
+                        // Draw an arc from `last` to `next.value`
+                        ctx.beginPath();
+                        let [sx, sy] = pos(last);
+                        let [ex, ey] = pos(next.value);
+                        let sr = last < next.value ? 0 : Math.PI;
+                        let er = last < next.value ? Math.PI : 2 * Math.PI;
+                        ctx.ellipse(
+                            (sx + ex) / 2,
+                            (sy + ey) / 2,
+                            Math.abs(sx - ex) / 2,
+                            Math.abs(sx - ex) / 2,
+                            sr,
+                            er,
+                            0,
+                        );
+                        ctx.strokeStyle = settings.colors.main;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
                 }
                 last = next.value;
             } else {
@@ -399,6 +403,7 @@ function loops_modulo(ctx, seq, settings) {
 
     let last = null;
     let identities = [];
+    let pairs = [];
 
     for (let n = 0; n < n_steps; n++) {
         let next = seq.next();
@@ -406,26 +411,29 @@ function loops_modulo(ctx, seq, settings) {
             if (last !== null) {
                 if (last === next.value) {
                     // Draw a little circle later
-                    if (!identities.find(id => id === last) >= 0) identities.push(last);
+                    if (identities.findIndex(id => id === last) < 0) identities.push(last);
                 } else {
-                    // Draw an arc from `last` to `next.value`
-                    ctx.beginPath();
-                    let [sx, sy] = pos(last);
-                    let [ex, ey] = pos(next.value);
-                    let sr = sx < ex ? 0 : Math.PI;
-                    let er = sx < ex ? Math.PI : 2 * Math.PI;
-                    ctx.ellipse(
-                        (sx + ex) / 2,
-                        (sy + ey) / 2,
-                        Math.abs(sx - ex) / 2,
-                        Math.abs(sx - ex) / 2,
-                        sr,
-                        er,
-                        0,
-                    );
-                    ctx.strokeStyle = settings.colors.main;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
+                    if (pairs.findIndex(([a, b]) => a === (last % modulo) && b === (next.value % modulo)) == -1) {
+                        pairs.push([last % modulo, next.value % modulo]);
+                        // Draw an arc from `last` to `next.value`
+                        ctx.beginPath();
+                        let [sx, sy] = pos(last);
+                        let [ex, ey] = pos(next.value);
+                        let sr = sx < ex ? 0 : Math.PI;
+                        let er = sx < ex ? Math.PI : 2 * Math.PI;
+                        ctx.ellipse(
+                            (sx + ex) / 2,
+                            (sy + ey) / 2,
+                            Math.abs(sx - ex) / 2,
+                            Math.abs(sx - ex) / 2,
+                            sr,
+                            er,
+                            0,
+                        );
+                        ctx.strokeStyle = settings.colors.main;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
                 }
                 last = next.value;
             } else {

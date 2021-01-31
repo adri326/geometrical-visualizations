@@ -73,8 +73,11 @@ function* primes(settings) {
     for (let n = 5n; true; n += 2n) {
         if (n % 2n == 0n) continue;
         let prime = true;
-        for (let p = 3n; p * p <= n; p++) {
-            if (n % p == 0n) prime = false;
+        for (let p = 3n; p * p <= n; p += 2n) {
+            if (n % p == 0n) {
+                prime = false;
+                break;
+            }
         }
         if (prime) {
             yield n;
