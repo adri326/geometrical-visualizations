@@ -1,5 +1,7 @@
+// Main canvas and its 2d context
 let canvas, ctx;
 
+// Export section
 let export_button, export_width_dom, export_height_dom, export_background_dom;
 let newtab_button;
 
@@ -7,17 +9,22 @@ let newtab_button;
 let settings_dom;
 let settings_viz, settings_trans, settings_seq;
 
+// Selection section
 let select_viz, select_trans, select_seq;
 let method_dom, method = "seq";
 
+// Selected methods (TODO: use an array instead)
 let current_viz = "circle_number_modulo";
 let current_seq = "fibonacci";
 let current_trans = "spiral";
 
+// Colors
 let color_background, color_foreground, color_reset;
 
+// Sequence caching
 let cache_seq = null;
 
+// Settings
 let settings = {
     colors: {
         main: "#ffffff",
@@ -25,7 +32,8 @@ let settings = {
     }
 };
 
-let METHODS = {
+// Methods (TODO: use arrays and make it more modular)
+const METHODS = {
     seq: {
         transformation: false,
         seq: SEQ,
@@ -45,8 +53,11 @@ let METHODS = {
 }
 
 window.addEventListener("load", () => {
+    // Get canvas element
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
+
+    // Method selection and listener
     method_dom = document.getElementById("select-method");
     method_dom.value = "seq";
     method_dom.addEventListener("change", () => {
@@ -55,23 +66,30 @@ window.addEventListener("load", () => {
         update_settings();
         resize_canvas();
     });
+
+    // Settings section
     settings_dom = document.getElementById("settings");
     settings_trans = document.getElementById("settings-trans");
     settings_viz = document.getElementById("settings-viz");
     settings_seq = document.getElementById("settings-seq");
     settings_dom.addEventListener("keyup", resize_canvas);
 
+    // Selection section (listeners are added later)
     select_viz = document.getElementById("viz");
     select_trans = document.getElementById("trans");
     select_seq = document.getElementById("seq");
 
+    // Color section
     color_reset = document.getElementById("color-reset");
     color_background = document.getElementById("color-background");
     color_foreground = document.getElementById("color-foreground");
 
+    // Update the UI
     update_colors();
     update_dropdowns();
     update_settings();
+
+    // Lots of listeners
     select_seq.addEventListener("change", () => {
         update_settings();
         resize_canvas();
@@ -100,6 +118,7 @@ window.addEventListener("load", () => {
         resize_canvas();
     });
 
+    // Export section
     newtab_button = document.getElementById("export-new-tab");
     export_button = document.getElementById("export-to-png");
     export_width_dom = document.getElementById("export-width");
@@ -107,7 +126,6 @@ window.addEventListener("load", () => {
     export_background_dom = document.getElementById("export-background");
     export_button.addEventListener("click", () => export_to_png(false));
     newtab_button.addEventListener("click", () => export_to_png(true));
-
 
     resize_canvas();
 });
@@ -186,7 +204,7 @@ function update_settings() {
     let trans = METHODS[method].transformation ? METHODS[method].trans[current_trans] : null;
 
     settings_seq.innerHTML = seq.settings
-        .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+        .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
             if (settings[ctx] && settings[ctx][name] !== undefined) {
                 return to_setting(settings[ctx][name], ctx, name, true);
             } else {
@@ -203,7 +221,7 @@ function update_settings() {
     if (METHODS[method].transformation) {
         settings_trans.innerHTML = trans.settings
             .replace(/\{var\}/g, var_name)
-            .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+            .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
                 if (settings[ctx] && settings[ctx][name] !== undefined) {
                     return to_setting(settings[ctx][name], ctx, name, false);
                 } else {
@@ -221,7 +239,7 @@ function update_settings() {
 
     settings_viz.innerHTML = viz.settings
         .replace(/\{var\}/g, var_name)
-        .replace(/\{([\w]+)\.([\w]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+        .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
             if (settings[ctx] && settings[ctx][name] !== undefined) {
                 return to_setting(settings[ctx][name], ctx, name, false);
             } else {
