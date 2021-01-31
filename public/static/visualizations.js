@@ -169,7 +169,7 @@ function turtle_mod2(ctx, seq, settings) {
     let modulo = +settings.turtle_mod2.modulo;
     let scale = +settings.turtle_mod2.scale;
     let n_steps = +settings.turtle_mod2.steps;
-    let noop = settings.turtle_mod2.noop.toLowerCase().startsWith("y");
+    let noop = settings.turtle_mod2.noop;
 
     if (n_steps <= 0) return;
     if (scale <= 0) return;
@@ -240,7 +240,7 @@ turtle_mod2.settings = `
     .
 </li>
 <li>
-    Do nothing if {var} mod <span class="variable three">m</span> = 0: {turtle_mod2.noop=yes} (yes/no).
+    Do nothing if {var} mod <span class="variable three">m</span> = 0: {turtle_mod2.noop=yes|no}.
 </li>
 <li>
     Scale: {turtle_mod2.scale=10} px/step — Steps: {turtle_mod2.steps=1000}

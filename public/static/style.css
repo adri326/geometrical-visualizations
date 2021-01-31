@@ -121,11 +121,11 @@ footer option {
     margin-right: 0.5em;
 }
 
-footer button.input {
+footer button.input, footer .input.boolean {
     cursor: pointer;
 }
 
-footer button.input:hover {
+footer button.input:hover, footer .input.boolean:hover {
     border-color: var(--foreground);
 }
 
@@ -151,6 +151,18 @@ footer .input {
 
 footer .input:hover, footer .input:active {
     border: 1px solid var(--button-outline-focused);
+}
+
+footer .input.boolean {
+    user-select: none;
+}
+
+footer .input.boolean.left > .right, footer .input.boolean.right > .left {
+    opacity: 0.66;
+}
+
+footer .input.boolean.left > .left, footer .input.boolean.right > .right {
+    text-decoration: underline;
 }
 
 #settings .variable {

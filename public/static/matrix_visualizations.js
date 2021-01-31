@@ -1,6 +1,6 @@
 function matrix_odd(ctx, mat, settings, exp) {
     let modulo = BigInt(settings.matrix_odd.modulo);
-    let evenness = settings.matrix_odd.evenness.toLowerCase() === 'even';
+    let evenness = settings.matrix_odd.evenness;
 
     if (modulo <= 0n) return;
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
@@ -22,7 +22,7 @@ matrix_odd.display_name = "Matrix Evenness";
 matrix_odd.settings = `
     <li>
         Display {var} modulo <span class="variable two">m</span> = {matrix_odd.modulo=3} as a matrix,
-        coloring a cell iff {var} mod <span class="variable two">m</span> is {matrix_odd.evenness=odd} (odd/even).
+        coloring a cell iff {var} mod <span class="variable two">m</span> is {matrix_odd.evenness=even|odd}.
     </li>
 `;
 

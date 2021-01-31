@@ -200,14 +200,27 @@ function update_settings() {
         html += s.settings
             .replace(/\{var\}/g, var_name)
             .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
-                if (settings[ctx] && settings[ctx][name] !== undefined) {
-                    return to_setting(settings[ctx][name], ctx, name, d);
-                } else {
-                    if (settings[ctx] === undefined) {
-                        settings[ctx] = {};
+                if (def.split("|").length === 2) {
+                    let [left, right] = def.split("|");
+                    if (settings[ctx] && settings[ctx][name] !== undefined) {
+                        return to_boolean_setting(settings[ctx][name], left, right, ctx, name, d);
+                    } else {
+                        if (settings[ctx] === undefined) {
+                            settings[ctx] = {};
+                        }
+                        settings[ctx][name] = true;
+                        return to_boolean_setting(true, left, right, ctx, name, d);
                     }
-                    settings[ctx][name] = def;
-                    return to_setting(def, ctx, name, d);
+                } else {
+                    if (settings[ctx] && settings[ctx][name] !== undefined) {
+                        return to_setting(settings[ctx][name], ctx, name, d);
+                    } else {
+                        if (settings[ctx] === undefined) {
+                            settings[ctx] = {};
+                        }
+                        settings[ctx][name] = def;
+                        return to_setting(def, ctx, name, d);
+                    }
                 }
             });
         var_name = s.var;
@@ -253,8 +266,20 @@ function to_setting(value, ctx, name, drop_cache = false) {
     return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
 }
 
+// TODO: use DOM objects and make the sub-elements respond to clicks/enter aswell
+function to_boolean_setting(value, left, right, ctx, name, drop_cache = false) {
+    return `<span class="input boolean ${value ? "left" : "right"} ${ctx}__${name}" onclick="
+        settings['${ctx}']['${name}'] = !settings['${ctx}']['${name}'];
+        console.log(this.classList);
+        this.classList.remove('left');
+        this.classList.remove('right');
+        this.classList.add(settings['${ctx}']['${name}'] ? 'left' : 'right');
+        ${drop_cache ? "drop_cache = true;" : ""}
+        redraw_canvas();
+    "><span class="left">${left}</span>/<span class="right">${right}</span></span>`;
+}
+
 function export_to_png(new_tab) {
-    console.log("Hello world");
     let width = +export_width_dom.value;
     let height = +export_height_dom.value;
 
