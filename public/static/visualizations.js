@@ -1,10 +1,10 @@
-function circle_number(ctx, seq, settings) {
+function circle_number(ctx, seq, settings, [left, top, width, height]) {
     let modulo = +settings.circle_number.modulo;
-    let radius = Math.min(ctx.width, ctx.height) * 0.4;
+    let radius = Math.min(width, height) * 0.4;
     let node_radius = 4;
 
-    let x = ctx.width / 2;
-    let y = ctx.height / 2;
+    let x = width / 2;
+    let y = height / 2;
 
     ctx.beginPath();
     ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
@@ -85,7 +85,7 @@ circle_number.settings = `
 </li>
 `;
 
-function turtle(ctx, seq, settings) {
+function turtle(ctx, seq, settings, [left, top, width, height]) {
     let modulo = +settings.turtle.modulo;
     let scale = +settings.turtle.scale;
     let n_steps = +settings.turtle.steps;
@@ -95,7 +95,7 @@ function turtle(ctx, seq, settings) {
     if (modulo <= 0) return;
 
     // Might need to bring this down for more expensive algorithms
-    let min_dimension = Math.min(ctx.width, ctx.height);
+    let min_dimension = Math.min(width, height);
 
     let pattern = [];
     let min_bound = [0, 0];
@@ -123,7 +123,7 @@ function turtle(ctx, seq, settings) {
     }
 
     direction = 0;
-    pos = [ctx.width / 2 - (max_bound[0] + min_bound[0]) / 2, ctx.height / 2 - (max_bound[1] + min_bound[1]) / 2];
+    pos = [width / 2 - (max_bound[0] + min_bound[0]) / 2, height / 2 - (max_bound[1] + min_bound[1]) / 2];
 
     if (modulo == 2 || modulo == 3) {
         pos[0] = Math.round(pos[0]);
@@ -165,7 +165,7 @@ turtle.settings = `
 </li>
 `;
 
-function turtle_mod2(ctx, seq, settings) {
+function turtle_mod2(ctx, seq, settings, [left, top, width, height]) {
     let modulo = +settings.turtle_mod2.modulo;
     let scale = +settings.turtle_mod2.scale;
     let n_steps = +settings.turtle_mod2.steps;
@@ -176,7 +176,7 @@ function turtle_mod2(ctx, seq, settings) {
     if (modulo <= 0) return;
 
     // Might need to bring this down for more expensive algorithms
-    let min_dimension = Math.min(ctx.width, ctx.height);
+    let min_dimension = Math.min(width, height);
 
     let pattern = [];
     let min_bound = [0, 0];
@@ -206,7 +206,7 @@ function turtle_mod2(ctx, seq, settings) {
     }
 
     direction = 0;
-    pos = [ctx.width / 2 - (max_bound[0] + min_bound[0]) / 2, ctx.height / 2 - (max_bound[1] + min_bound[1]) / 2];
+    pos = [width / 2 - (max_bound[0] + min_bound[0]) / 2, height / 2 - (max_bound[1] + min_bound[1]) / 2];
 
     pos[0] = Math.round(pos[0]);
     pos[1] = Math.round(pos[1]);
@@ -247,19 +247,19 @@ turtle_mod2.settings = `
 </li>
 `;
 
-function bar_graph(ctx, seq, settings) {
+function bar_graph(ctx, seq, settings, [left, top, width, height]) {
     let modulo = BigInt(settings.bar_graph.modulo);
     let spacing = +settings.bar_graph.spacing;
     let node_radius = 4;
 
-    let bottom = ctx.height * Number(modulo) / Number(modulo + 2n);
+    let bottom = height * Number(modulo) / Number(modulo + 2n);
 
     if (modulo <= 0 || isNaN(spacing) || spacing <= 0) return;
 
-    for (let x = 0; x < ctx.width - spacing / 2; x += spacing) {
+    for (let x = 0; x < width - spacing / 2; x += spacing) {
         let next = seq.next();
         if (next.value !== undefined) {
-            let y = Number(next.value % modulo) / Number(modulo + 2n) * ctx.height;
+            let y = Number(next.value % modulo) / Number(modulo + 2n) * height;
             ctx.beginPath();
             ctx.moveTo(x + spacing / 2, bottom);
             ctx.lineTo(x + spacing / 2, bottom - y);
@@ -293,17 +293,17 @@ bar_graph.settings = `
 </li>
 `;
 
-function loops(ctx, seq, settings) {
+function loops(ctx, seq, settings, [left, top, width, height]) {
     let max = BigInt(settings.loops.max);
     let min = BigInt(settings.loops.min);
     let n_steps = +settings.loops.steps;
 
     if (isNaN(n_steps) || n_steps <= 0 || min == max) return;
 
-    let dx = ctx.width / Number(max - min + 2n);
+    let dx = width / Number(max - min + 2n);
 
     function pos(value) {
-        return [dx * Number(value - min) + dx, ctx.height / 2];
+        return [dx * Number(value - min) + dx, height / 2];
     }
 
     let last = null;
@@ -358,7 +358,7 @@ function loops(ctx, seq, settings) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    if (ctx.width / Number(max - min) > 10) {
+    if (width / Number(max - min) > 10) {
         for (let x = min; x <= max; x += 1n) {
             ctx.beginPath();
             ctx.ellipse(...pos(x), 3, 3, 0, 2 * Math.PI, 0);
@@ -387,18 +387,18 @@ loops.settings = `
 </li>
 `;
 
-function loops_modulo(ctx, seq, settings) {
+function loops_modulo(ctx, seq, settings, [left, top, width, height]) {
     let modulo = BigInt(settings.loops_modulo.modulo);
     let min = BigInt(settings.loops_modulo.min);
     let n_steps = +settings.loops_modulo.steps;
 
     if (isNaN(n_steps) || n_steps <= 0 || modulo <= 0n || min >= modulo - 1n) return;
 
-    let dx = Math.min(ctx.width, ctx.height) / Number(modulo + 2n);
-    let sx = ctx.width / 2 - dx * Number(modulo - min - 1n) / 2;
+    let dx = Math.min(width, height) / Number(modulo + 2n);
+    let sx = width / 2 - dx * Number(modulo - min - 1n) / 2;
 
     function pos(value) {
-        return [dx * Number((value % modulo) - min) + sx, ctx.height / 2];
+        return [dx * Number((value % modulo) - min) + sx, height / 2];
     }
 
     let last = null;

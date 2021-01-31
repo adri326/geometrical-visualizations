@@ -1,10 +1,10 @@
-function matrix_odd(ctx, mat, settings, exp) {
+function matrix_odd(ctx, mat, settings, pos, exp) {
     let modulo = BigInt(settings.matrix_odd.modulo);
     let evenness = settings.matrix_odd.evenness;
 
     if (modulo <= 0n) return;
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
-    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
+    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, pos, exp);
 
     for (let y = 0; y < mat.length; y++) {
         let vy = sy + y * dy;
@@ -26,13 +26,13 @@ matrix_odd.settings = `
     </li>
 `;
 
-function matrix_multiple(ctx, mat, settings, exp) {
+function matrix_multiple(ctx, mat, settings, pos, exp) {
     let modulo = BigInt(settings.matrix_multiple.modulo);
     let search = BigInt(settings.matrix_multiple.value);
 
     if (modulo <= 0n) return;
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
-    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
+    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, pos, exp);
 
     for (let y = 0; y < mat.length; y++) {
         let vy = sy + y * dy;
@@ -54,12 +54,12 @@ matrix_multiple.settings = `
     </li>
 `;
 
-function matrix_mod(ctx, mat, settings, exp) {
+function matrix_mod(ctx, mat, settings, pos, exp) {
     let modulo = BigInt(settings.matrix_mod.modulo);
 
     if (modulo <= 1n) return;
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
-    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
+    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, pos, exp);
 
     function color(v) {
         let [sr, sg, sb] = settings.colors.bg
@@ -97,11 +97,11 @@ matrix_mod.settings = `
     </li>
 `;
 
-function matrix_gt(ctx, mat, settings, exp) {
+function matrix_gt(ctx, mat, settings, pos, exp) {
     let min = BigInt(settings.matrix_gt.min);
 
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
-    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
+    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, pos, exp);
 
     for (let y = 0; y < mat.length; y++) {
         let vy = sy + y * dy;
@@ -122,9 +122,9 @@ matrix_gt.settings = `
     </li>
 `;
 
-function matrix_gradient_auto(ctx, mat, settings, exp) {
+function matrix_gradient_auto(ctx, mat, settings, pos, exp) {
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
-    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
+    let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, pos, exp);
 
     let min = null, max = null;
 
@@ -187,28 +187,28 @@ const MAT_VIZ = {
     matrix_gradient_auto,
 };
 
-function fit_matrix(ctx, mat, settings, exp) {
+function fit_matrix(ctx, mat, settings, [left, right, width, height], exp) {
     let ratio = mat.length / mat[0].length;
 
-    let sx, sy, dx, dy, width, height;
+    let sx, sy, dx, dy, width2, height2;
 
-    if (ctx.height / ctx.width >= ratio) {
+    if (height / width >= ratio) {
         // Fit horizontally
-        width = ctx.width * (exp ? 1 : 0.8);
-        height = width * ratio;
+        width2 = width * (exp ? 1 : 0.8);
+        height2 = width2 * ratio;
     } else {
         // Fit vertically
-        height = ctx.height * (exp ? 1 : 0.8);
-        width = height / ratio;
+        height2 = height * (exp ? 1 : 0.8);
+        width2 = height2 / ratio;
     }
-    width = Math.round(width / mat[0].length) * mat[0].length;
-    height = Math.round(height / mat.length) * mat.length;
+    width2 = Math.round(width2 / mat[0].length) * mat[0].length;
+    height2 = Math.round(height2 / mat.length) * mat.length;
 
-    sx = Math.round(ctx.width / 2 - width / 2);
-    sy = Math.round(ctx.height / 2 - height / 2);
+    sx = Math.round(width / 2 - width2 / 2);
+    sy = Math.round(height / 2 - height2 / 2);
 
-    dx = width / mat[0].length;
-    dy = height / mat.length;
+    dx = width2 / mat[0].length;
+    dy = height2 / mat.length;
 
-    return [sx, sy, dx, dy, width, height];
+    return [sx, sy, dx, dy, width2, height2];
 }

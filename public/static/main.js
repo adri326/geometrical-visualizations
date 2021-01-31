@@ -1,3 +1,5 @@
+const MAX_RANGE = 32;
+
 // Main canvas and its 2d context
 let canvas, ctx;
 
@@ -29,6 +31,8 @@ let settings = {
         bg: "#34373b",
     }
 };
+
+let range_tree = [{}];
 
 // Methods (TODO: use arrays and make it more modular)
 const METHODS = {
@@ -107,43 +111,70 @@ function redraw_canvas(bg = false, exp = false) {
         ctx.fillRect(0, 0, ctx.width, ctx.height);
     }
 
-    let steps = METHODS[method].steps;
-    let value = steps[0][current_selections[0]];
+    let dx = Math.round(ctx.width / range_tree.length);
+    // Currently, the canvas is split horizontally when using ranges.
+    for (let n = 0; n < range_tree.length; n++) {
+        let settings = range_tree[n];
+        let steps = METHODS[method].steps;
+        let value = steps[0][current_selections[0]];
 
-    if (value instanceof CacheSeq) {
-        if (drop_cache) {
-            value.reset(settings);
-        } else {
-            value.rewind();
-        }
-    } else if (typeof value === "function") {
-        value = value(settings);
-    } else {
-        throw new Error("Expected function or CacheSeq as method step, got " + typeof value);
-    }
-
-    for (let step = 1; step < steps.length - 1; step++) {
-        let m = steps[step][current_selections[step]];
-        if (m instanceof CacheSeq) {
-            if (drop_cache) {
-                m.reset(settings);
+        if (value instanceof CacheSeq) {
+            if (drop_cache || range_tree.length > 1) {
+                value.reset(settings);
             } else {
-                m.rewind();
+                value.rewind();
             }
-            value = m;
-        } else if (typeof m === "function") {
-            value = m(value, settings);
+        } else if (typeof value === "function") {
+            value = value(settings);
         } else {
-            throw new Error("Expected function or CacheSeq as method step, got " + typeof m);
+            throw new Error("Expected function or CacheSeq as method step, got " + typeof value);
         }
-    }
 
-    let last_step = steps[steps.length - 1][current_selections[steps.length - 1]];
+        for (let step = 1; step < steps.length - 1; step++) {
+            let m = steps[step][current_selections[step]];
+            if (m instanceof CacheSeq) {
+                if (drop_cache) {
+                    m.reset(settings);
+                } else {
+                    m.rewind();
+                }
+                value = m;
+            } else if (typeof m === "function") {
+                value = m(value, settings);
+            } else {
+                throw new Error("Expected function or CacheSeq as method step, got " + typeof m);
+            }
+        }
 
-    if (typeof last_step === "function") {
-        last_step(ctx, value, settings, exp);
-    } else {
-        throw new Error("Expected function as method step, got " + typeof last_step);
+        let last_step = steps[steps.length - 1][current_selections[steps.length - 1]];
+
+        if (typeof last_step === "function") {
+            ctx.setTransform(1, 0, 0, 1, n * dx, 0);
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(
+                0,
+                0,
+                dx,
+                ctx.height
+            );
+            ctx.clip();
+            last_step(
+                ctx,
+                value,
+                settings,
+                [
+                    n * dx,
+                    0,
+                    dx,
+                    ctx.height
+                ],
+                exp
+            );
+            ctx.restore();
+        } else {
+            throw new Error("Expected function as method's last step, got " + typeof last_step);
+        }
     }
 
     drop_cache = false;
@@ -229,6 +260,12 @@ function update_settings() {
     settings_dom.innerHTML = html;
 
     drop_cache = true;
+    update_values();
+}
+
+function update_values() {
+    range_tree = build_range_tree();
+
     resize_canvas();
 }
 
@@ -263,7 +300,7 @@ function update_colors() {
 }
 
 function to_setting(value, ctx, name, drop_cache = false) {
-    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
+    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""};update_values();">${value}</span>`;
 }
 
 // TODO: use DOM objects and make the sub-elements respond to clicks/enter aswell
@@ -275,7 +312,7 @@ function to_boolean_setting(value, left, right, ctx, name, drop_cache = false) {
         this.classList.remove('right');
         this.classList.add(settings['${ctx}']['${name}'] ? 'left' : 'right');
         ${drop_cache ? "drop_cache = true;" : ""}
-        redraw_canvas();
+        update_values();
     "><span class="left">${left}</span>/<span class="right">${right}</span></span>`;
 }
 
@@ -310,6 +347,53 @@ function export_to_png(new_tab) {
         download += ".png";
         a.download = download;
         a.click();
+    }
+}
+
+function build_range_tree(step = 0) {
+    if (step >= METHODS[method].steps.length) return [{colors: settings.colors}]; // {∅}
+
+    let res = build_range_tree(step + 1);
+
+    let step_settings = settings[current_selections[step]];
+    let merged = false;
+    for (let key in step_settings) {
+        let match;
+        if (match = /^(-?[0-9]+)\.\.(-?[0-9]+)$/.exec(step_settings[key])) {
+            if (+match[1] < +match[2] && +match[2] - +match[1] < MAX_RANGE) {
+                // res ^ match[1]..match[2]
+                merged = true;
+                let tmp = [];
+                for (let x = +match[1]; x < +match[2]; x++) {
+                    tmp = tmp.concat(res.map(obj => {
+                        if (obj[current_selections[step]] === undefined) {
+                            return {
+                                ...obj,
+                                [current_selections[step]]: {
+                                    ...step_settings,
+                                    [key]: String(x),
+                                }
+                            };
+                        } else {
+                            let y = {...obj};
+                            y[current_selections[step]] = {
+                                ...y[current_selections[step]],
+                                [key]: String(x),
+                            };
+                            return y;
+                        }
+                    }));
+                }
+                res = tmp;
+            }
+        }
+    }
+
+    if (!merged) {
+        // res + step_settings
+        return res.map(x => ({...x, [current_selections[step]]: step_settings}));
+    } else {
+        return res;
     }
 }
 
