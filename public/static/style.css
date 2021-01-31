@@ -92,7 +92,7 @@ footer option {
     display: default;
 }
 
-#settings-viz, #settings-seq, #settings-trans {
+#settings {
     list-style-type: none;
     padding: 0;
     line-height: calc(1.5em + 6px);

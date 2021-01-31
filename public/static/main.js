@@ -5,18 +5,16 @@ let canvas, ctx;
 let export_button, export_width_dom, export_height_dom, export_background_dom;
 let newtab_button;
 
-// Object containing all of the settings
+// DOM Object containing all of the settings
 let settings_dom;
-let settings_viz, settings_trans, settings_seq;
 
 // Selection section
-let select_viz, select_trans, select_seq;
+let selection_dom;
+let selections = [];
 let method_dom, method = "seq";
 
-// Selected methods (TODO: use an array instead)
-let current_viz = "circle_number_modulo";
-let current_seq = "fibonacci";
-let current_trans = "spiral";
+// Selected methods
+let current_selections = [];
 
 // Colors
 let color_background, color_foreground, color_reset;
@@ -35,20 +33,16 @@ let settings = {
 // Methods (TODO: use arrays and make it more modular)
 const METHODS = {
     seq: {
-        transformation: false,
-        seq: cachify(SEQ),
-        viz: VIZ,
-        default_seq: "fibonacci",
-        default_viz: "circle_number_modulo",
+        steps: [cachify(SEQ), VIZ],
+        defaults: ["fibonacci", "circle_number_modulo"],
+        drop_cache: [true, false],
+        display_name: "Sequence",
     },
     seq_to_mat: {
-        transformation: true,
-        seq: cachify(SEQ),
-        trans: MAT_TRANS,
-        viz: MAT_VIZ,
-        default_seq: "fibonacci",
-        default_viz: "placeholder",
-        default_trans: "spiral",
+        steps: [cachify(SEQ), MAT_TRANS, MAT_VIZ],
+        defaults: ["fibonacci", "spiral", "matrix_odd"],
+        drop_cache: [true, false, false],
+        display_name: "Sequence → Matrix",
     }
 }
 
@@ -63,21 +57,14 @@ window.addEventListener("load", () => {
     method_dom.addEventListener("change", () => {
         update_method();
         update_dropdowns();
-        update_settings();
-        resize_canvas();
     });
+
+    // Selections section
+    selection_dom = document.getElementById("selection");
 
     // Settings section
     settings_dom = document.getElementById("settings");
-    settings_trans = document.getElementById("settings-trans");
-    settings_viz = document.getElementById("settings-viz");
-    settings_seq = document.getElementById("settings-seq");
     settings_dom.addEventListener("keyup", resize_canvas);
-
-    // Selection section (listeners are added later)
-    select_viz = document.getElementById("viz");
-    select_trans = document.getElementById("trans");
-    select_seq = document.getElementById("seq");
 
     // Color section
     color_reset = document.getElementById("color-reset");
@@ -87,21 +74,6 @@ window.addEventListener("load", () => {
     // Update the UI
     update_colors();
     update_dropdowns();
-    update_settings();
-
-    // Lots of listeners
-    select_seq.addEventListener("change", () => {
-        update_settings();
-        resize_canvas();
-    });
-    select_trans.addEventListener("change", () => {
-        update_settings();
-        resize_canvas();
-    });
-    select_viz.addEventListener("change", () => {
-        update_settings();
-        resize_canvas();
-    });
 
     color_background.addEventListener("change", () => {
         update_colors();
@@ -126,8 +98,6 @@ window.addEventListener("load", () => {
     export_background_dom = document.getElementById("export-background");
     export_button.addEventListener("click", () => export_to_png(false));
     newtab_button.addEventListener("click", () => export_to_png(true));
-
-    resize_canvas();
 });
 
 function redraw_canvas(bg = false, exp = false) {
@@ -137,25 +107,46 @@ function redraw_canvas(bg = false, exp = false) {
         ctx.fillRect(0, 0, ctx.width, ctx.height);
     }
 
-    let seq = METHODS[method].seq[current_seq];
+    let steps = METHODS[method].steps;
+    let value = steps[0][current_selections[0]];
 
-    if (seq instanceof CacheSeq) {
+    if (value instanceof CacheSeq) {
         if (drop_cache) {
-            seq.reset(settings);
-            drop_cache = false;
+            value.reset(settings);
         } else {
-            seq.rewind();
+            value.rewind();
         }
+    } else if (typeof value === "function") {
+        value = value(settings);
     } else {
-        seq = seq(settings);
+        throw new Error("Expected function or CacheSeq as method step, got " + typeof value);
     }
 
-    if (METHODS[method].transformation) {
-        let mat = METHODS[method].trans[current_trans](seq, settings);
-        METHODS[method].viz[current_viz](ctx, mat, settings, exp);
-    } else {
-        METHODS[method].viz[current_viz](ctx, seq, settings, exp);
+    for (let step = 1; step < steps.length - 1; step++) {
+        let m = steps[step][current_selections[step]];
+        if (m instanceof CacheSeq) {
+            if (drop_cache) {
+                m.reset(settings);
+            } else {
+                m.rewind();
+            }
+            value = m;
+        } else if (typeof m === "function") {
+            value = m(value, settings);
+        } else {
+            throw new Error("Expected function or CacheSeq as method step, got " + typeof m);
+        }
     }
+
+    let last_step = steps[steps.length - 1][current_selections[steps.length - 1]];
+
+    if (typeof last_step === "function") {
+        last_step(ctx, value, settings, exp);
+    } else {
+        throw new Error("Expected function as method step, got " + typeof last_step);
+    }
+
+    drop_cache = false;
 }
 
 function resize_canvas() {
@@ -167,99 +158,65 @@ function resize_canvas() {
 
 function update_method() {
     method = method_dom.value;
-    current_seq = METHODS[method].default_seq;
-    current_viz = METHODS[method].default_viz;
-    if (METHODS[method].transformation) {
-        current_trans = METHODS[method].default_trans;
-        document.getElementById("transformation-selection").className = "shown";
-    } else {
-        document.getElementById("transformation-selection").className = "hidden";
-    }
+    selections = [...METHODS[method].defaults];
 }
 
+// TODO: directly use DOM
 function update_dropdowns() {
-    let html_viz = "";
-    for (let name in METHODS[method].viz) {
-        html_viz += `<option name="${name}" value="${name}" ${current_viz == name ? "selected" : ""}>${METHODS[method].viz[name].display_name}</option>`;
-    }
-    select_viz.innerHTML = html_viz;
-
-    if (METHODS[method].transformation) {
-        let html_trans = "";
-        for (let name in METHODS[method].trans) {
-            html_trans += `<option name="${name}" value="${name}" ${current_trans == name ? "selected" : ""}>${METHODS[method].trans[name].display_name}</option>`;
+    let html = "";
+    for (let step = 0; step < METHODS[method].steps.length; step++) {
+        if (step != 0) {
+            html += `<div><span class="arrow">→</span>`;
         }
-        select_trans.innerHTML = html_trans;
-    } else {
-        select_trans.innerHTML = "";
+        html += `<select name="selection-${step}" id="selection-${step}" onchange="update_settings()">`;
+
+        for (let name in METHODS[method].steps[step]) {
+            html += `<option name="${name}" value="${name}" ${selections[step] === name ? "selected" : ""}>`;
+            html += METHODS[method].steps[step][name].display_name;
+            html += `</option>`;
+        }
+
+        html += `</select>`;
+        if (step != 0) {
+            html += `</div>`;
+        }
     }
 
-    let html_seq = "";
-    for (let name in METHODS[method].seq) {
-        html_seq += `<option name="${name}" value="${name}" ${current_seq == name ? "selected" : ""}>${METHODS[method].seq[name].display_name}</option>`;
-    }
-    select_seq.innerHTML = html_seq;
+    selection_dom.innerHTML = html;
 
-    drop_cache = true;
+    update_settings();
 }
 
 function update_settings() {
-    current_seq = select_seq.value;
-    current_viz = select_viz.value;
-    current_trans = select_trans.value;
-    let seq = METHODS[method].seq[current_seq];
-    let viz = METHODS[method].viz[current_viz];
-    let trans = METHODS[method].transformation ? METHODS[method].trans[current_trans] : null;
+    let html = "";
+    let var_name = "";
 
-    settings_seq.innerHTML = seq.settings
-        .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
-            if (settings[ctx] && settings[ctx][name] !== undefined) {
-                return to_setting(settings[ctx][name], ctx, name, true);
-            } else {
-                if (settings[ctx] === undefined) {
-                    settings[ctx] = {};
-                }
-                settings[ctx][name] = def;
-                return to_setting(def, ctx, name, true);
-            }
-        });
+    for (let step = 0; step < METHODS[method].steps.length; step++) {
+        current_selections[step] = selection_dom.querySelector(`#selection-${step}`).value;
 
-    let var_name = seq.var;
+        let s = METHODS[method].steps[step][current_selections[step]];
+        let d = METHODS[method].drop_cache[step];
 
-    if (METHODS[method].transformation) {
-        settings_trans.innerHTML = trans.settings
+        html += s.settings
             .replace(/\{var\}/g, var_name)
             .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
                 if (settings[ctx] && settings[ctx][name] !== undefined) {
-                    return to_setting(settings[ctx][name], ctx, name, false);
+                    return to_setting(settings[ctx][name], ctx, name, d);
                 } else {
                     if (settings[ctx] === undefined) {
                         settings[ctx] = {};
                     }
                     settings[ctx][name] = def;
-                    return to_setting(def, ctx, name, false);
+                    return to_setting(def, ctx, name, d);
                 }
             });
-        var_name = trans.var;
-    } else {
-        settings_trans.innerHTML = "";
+        var_name = s.var;
     }
 
-    settings_viz.innerHTML = viz.settings
-        .replace(/\{var\}/g, var_name)
-        .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
-            if (settings[ctx] && settings[ctx][name] !== undefined) {
-                return to_setting(settings[ctx][name], ctx, name, false);
-            } else {
-                if (settings[ctx] === undefined) {
-                    settings[ctx] = {};
-                }
-                settings[ctx][name] = def;
-                return to_setting(def, ctx, name, false);
-            }
-        });
+    settings_dom.innerHTML = html;
 
     drop_cache = true;
+    resize_canvas();
 }
 
 function update_colors() {
@@ -323,9 +280,7 @@ function export_to_png(new_tab) {
         let a = document.createElement("a");
         a.href = url;
         a.target = "_blank";
-        let download = current_seq;
-        if (METHODS[method].transformation) download += "-" + current_trans;
-        download += "-" + current_viz;
+        let download = current_selections.join("-");
         download += "-" + width + "x" + height;
         download += ".png";
         a.download = download;
