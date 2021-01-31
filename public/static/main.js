@@ -22,7 +22,7 @@ let current_trans = "spiral";
 let color_background, color_foreground, color_reset;
 
 // Sequence caching
-let cache_seq = null;
+let drop_cache = true;
 
 // Settings
 let settings = {
@@ -36,14 +36,14 @@ let settings = {
 const METHODS = {
     seq: {
         transformation: false,
-        seq: SEQ,
+        seq: cachify(SEQ),
         viz: VIZ,
         default_seq: "fibonacci",
         default_viz: "circle_number_modulo",
     },
     seq_to_mat: {
         transformation: true,
-        seq: SEQ,
+        seq: cachify(SEQ),
         trans: MAT_TRANS,
         viz: MAT_VIZ,
         default_seq: "fibonacci",
@@ -136,17 +136,25 @@ function redraw_canvas(bg = false, exp = false) {
         ctx.fillStyle = settings.colors.bg;
         ctx.fillRect(0, 0, ctx.width, ctx.height);
     }
-    if (cache_seq === null) {
-        cache_seq = new CacheSeq(METHODS[method].seq[current_seq](settings));
+
+    let seq = METHODS[method].seq[current_seq];
+
+    if (seq instanceof CacheSeq) {
+        if (drop_cache) {
+            seq.reset(settings);
+            drop_cache = false;
+        } else {
+            seq.rewind();
+        }
     } else {
-        cache_seq.reset();
+        seq = seq(settings);
     }
 
     if (METHODS[method].transformation) {
-        let mat = METHODS[method].trans[current_trans](cache_seq, settings);
+        let mat = METHODS[method].trans[current_trans](seq, settings);
         METHODS[method].viz[current_viz](ctx, mat, settings, exp);
     } else {
-        METHODS[method].viz[current_viz](ctx, cache_seq, settings, exp);
+        METHODS[method].viz[current_viz](ctx, seq, settings, exp);
     }
 }
 
@@ -192,7 +200,7 @@ function update_dropdowns() {
     }
     select_seq.innerHTML = html_seq;
 
-    cache_seq = null;
+    drop_cache = true;
 }
 
 function update_settings() {
@@ -251,7 +259,7 @@ function update_settings() {
             }
         });
 
-    cache_seq = null;
+    drop_cache = true;
 }
 
 function update_colors() {
@@ -285,7 +293,7 @@ function update_colors() {
 }
 
 function to_setting(value, ctx, name, drop_cache = false) {
-    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "cache_seq = null;" : ""}">${value}</span>`;
+    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
 }
 
 function export_to_png(new_tab) {

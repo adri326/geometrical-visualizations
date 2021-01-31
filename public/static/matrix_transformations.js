@@ -58,7 +58,7 @@ spiral.settings = `
     <li>
         Wraps {var} in a spiral
             <span class="variable one bold">S</span><sub><span class="variable two">x</span>,<span class="variable two">y</span></sub>,
-        with {spiral.loops=4} loops.
+        with {spiral.loops=10} loops.
     </li>
 `;
 
@@ -136,7 +136,7 @@ spiral_count.settings = `
     <li>
         Maps the first <span class="variable two">N</span> = {spiral_count.n=1000} elements of {var} onto a spiral
             <span class="variable one bold">S</span><sub><span class="variable two">x</span>,<span class="variable two">y</span></sub>,
-        with {spiral_count.loops=4} loops,
+        with {spiral_count.loops=10} loops,
     </li>
     <li>
         such that for each value of <span class="variable three">n</span>, <span class="variable one bold">S</span>'s entry of index {var} is incremented by 1.

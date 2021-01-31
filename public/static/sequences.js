@@ -161,7 +161,7 @@ random.var = `<span class="variable one">R</span>(<span class="variable two">n</
 random.settings = `
     <li>
         Let <span class="variable one">R</span> be the random function, which yields random numbers between {random.min=0} and {random.max=10}
-        (<button class="input" type="button" onclick="cache_seq = null; redraw_canvas();">Reroll</button>).
+        (<button class="input" type="button" onclick="drop_cache = true; redraw_canvas();">Reroll</button>).
     </li>
 `;
 

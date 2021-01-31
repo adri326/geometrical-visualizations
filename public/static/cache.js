@@ -1,12 +1,19 @@
 class CacheSeq {
     constructor(seq) {
         this.seq = seq;
+        this.instance = null
         this.cache = [];
         this.index = 0;
         this.done = false;
     }
 
-    reset() {
+    reset(...args) {
+        this.instance = this.seq(...args);
+        this.cache = [];
+        this.index = 0;
+    }
+
+    rewind() {
         this.index = 0;
     }
 
@@ -19,7 +26,7 @@ class CacheSeq {
                 done: this.index >= this.cache.length && this.done,
             };
         } else if (!this.done) {
-            let res = this.seq.next();
+            let res = this.instance.next();
             if (res.value !== undefined) {
                 this.cache.push(res.value);
             }
@@ -33,4 +40,15 @@ class CacheSeq {
             }
         }
     }
+}
+
+function cachify(obj) {
+    let res = {};
+    for (let key in obj) {
+        res[key] = new CacheSeq(obj[key]);
+        for (let prop of Reflect.ownKeys(obj[key])) {
+            Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
+        }
+    }
+    return res;
 }
