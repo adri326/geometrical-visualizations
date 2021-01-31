@@ -9,10 +9,6 @@ let app = new Express();
 app.use(compress());
 app.use(minify());
 app.use("/node_modules", Express.static("node_modules"));
-app.get("/", (req, res) => {
-    res.redirect("/index.html");
-});
-app.use("/", Express.static("./src/"));
-app.use("/static", Express.static("./static/"));
+app.use("/", Express.static("./public/"));
 
 http.createServer(app).listen(settings.port);
