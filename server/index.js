@@ -1,12 +1,17 @@
 const http = require("http");
 const Express = require("express");
 const compress = require("compression");
-const settings = require("../settings.json");
+const path = require("path");
 
-let app = new Express();
+let static = Express.static(path.resolve(path.dirname(module.filename), "../public"));
 
-app.use(compress());
-app.use("/node_modules", Express.static("node_modules"));
-app.use(Express.static("public"));
+if (require.main === module) {
+    let app = new Express();
+    app.use(compress());
+    app.use("/", static);
 
-http.createServer(app).listen(settings.port);
+    const settings = require("../settings.json");
+    http.createServer(app).listen(settings.port);
+} else {
+    module.exports = static;
+}
