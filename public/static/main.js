@@ -225,7 +225,38 @@ function update_settings() {
 
         html += s.settings
             .replace(/\{var\}/g, var_name)
-            .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def) => {
+            .replace(/\{(\d+)\*(\d+):([\w_]+)\.([\w_]+)(?:=\[([^\}]+)\])?\}/g, (_, width, height, ctx, name, def = "") => {
+                let table = def.split(",");
+
+                if (isNaN(+width) || +width <= 0) throw new Error("Invalid width in input field: " + width);
+                if (isNaN(+height) || +height <= 0) throw new Error("Invalid height in input field: " + height);
+
+                width = +width;
+                height = +height;
+
+                if (table.length !== width * height) throw new Error("Invalid default: length isn't equal to width * height", table);
+
+                if (!settings[ctx] || !Array.isArray(settings[ctx][name])) {
+                    if (settings[ctx] === undefined) {
+                        settings[ctx] = {};
+                    }
+                    settings[ctx][name] = table;
+                }
+                let res = "<table class=\"input-table\">";
+                for (let y = 0; y < height; y++) {
+                    res += "<tr>";
+                    for (let x = 0; x < width; x++) {
+                        res += "<td>";
+                        res += to_table_setting(table[x + y * width], ctx, name, x + y * width, d);
+                        res += "</td>";
+                    }
+                    res += "</tr>";
+                }
+                res += "</table>";
+
+                return res;
+            })
+            .replace(/\{([\w_]+)\.([\w_]+)(?:=([^\}]+))?\}/g, (_, ctx, name, def = "") => {
                 if (def.split("|").length === 2) {
                     let [left, right] = def.split("|");
                     if (settings[ctx] && settings[ctx][name] !== undefined) {
@@ -292,6 +323,10 @@ function update_colors() {
 
 function to_setting(value, ctx, name, drop_cache = false) {
     return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
+}
+
+function to_table_setting(value, ctx, name, index, drop_cache = false) {
+    return `<span class="input ${ctx}__${name}__${index}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'][${index}] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
 }
 
 // TODO: use DOM objects and make the sub-elements respond to clicks/enter aswell

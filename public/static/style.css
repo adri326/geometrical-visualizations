@@ -165,6 +165,10 @@ footer .input.boolean.left > .left, footer .input.boolean.right > .right {
     text-decoration: underline;
 }
 
+footer .input-table {
+    display: inline-block;
+}
+
 #settings .variable {
     font-weight: 500;
 }
