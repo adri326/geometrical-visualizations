@@ -43,6 +43,18 @@ const METHODS = {
         defaults: ["fibonacci", "spiral", "matrix_odd"],
         drop_cache: [true, false, false],
         display_name: "Sequence → Matrix",
+    },
+    seq_trans_mat: {
+        steps: [cachify(SEQ), cachify(SEQ2SEQ_TRANS), MAT_TRANS, MAT_VIZ],
+        defaults: ["fibonacci", "monomial", "spiral", "matrix_odd"],
+        drop_cache: [true, true, false, false],
+        display_name: "Sequence → f → Matrix",
+    },
+    seq_trans: {
+        steps: [cachify(SEQ), cachify(SEQ2SEQ_TRANS), VIZ],
+        defaults: ["fibonacci", "monomial", "circle_number_modulo"],
+        drop_cache: [true, true, false],
+        display_name: "Sequence → f",
     }
 }
 
@@ -56,7 +68,6 @@ window.addEventListener("load", () => {
     method_dom.value = "seq";
     method_dom.addEventListener("change", () => {
         update_method();
-        update_dropdowns();
     });
 
     // Selections section
@@ -73,7 +84,7 @@ window.addEventListener("load", () => {
 
     // Update the UI
     update_colors();
-    update_dropdowns();
+    update_methods();
 
     color_background.addEventListener("change", () => {
         update_colors();
@@ -126,7 +137,7 @@ function redraw_canvas(bg = false, exp = false) {
         let m = steps[step][current_selections[step]];
         if (m instanceof CacheSeq) {
             if (drop_cache) {
-                m.reset(settings);
+                m.reset(value, settings);
             } else {
                 m.rewind();
             }
@@ -156,9 +167,24 @@ function resize_canvas() {
     redraw_canvas();
 }
 
+function update_methods() {
+    for (let name in METHODS) {
+        let option = document.createElement("option");
+        option.value = name;
+        option.id = `method__${name}`;
+        option.innerText = METHODS[name].display_name;
+        if (name === method) option.default = true;
+        method_dom.appendChild(option);
+    }
+
+    update_method();
+}
+
 function update_method() {
     method = method_dom.value;
     selections = [...METHODS[method].defaults];
+
+    update_dropdowns();
 }
 
 // TODO: directly use DOM
@@ -223,7 +249,9 @@ function update_settings() {
                     }
                 }
             });
-        var_name = s.var;
+        if (s.var) {
+            var_name = s.var.replace(/\{var\}/g, var_name);
+        }
     }
 
     settings_dom.innerHTML = html;
