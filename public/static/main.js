@@ -55,6 +55,12 @@ const METHODS = {
         defaults: ["fibonacci", "monomial", "circle_number_modulo"],
         drop_cache: [true, true, false],
         display_name: "Sequence → f",
+    },
+    mat: {
+        steps: [cachify_mat(MAT), MAT_VIZ],
+        defaults: ["chess", "matrix_gradient_auto"],
+        drop_cache: [true, false],
+        display_name: "Matrix",
     }
 }
 
@@ -127,6 +133,11 @@ function redraw_canvas(bg = false, exp = false) {
         } else {
             value.rewind();
         }
+    } else if (value instanceof CacheMat) {
+        if (drop_cache) {
+            value.reset(settings);
+        }
+        value = value.get();
     } else if (typeof value === "function") {
         value = value(settings);
     } else {
@@ -142,10 +153,15 @@ function redraw_canvas(bg = false, exp = false) {
                 m.rewind();
             }
             value = m;
+        } else if (m instanceof CacheMat) {
+            if (drop_cache) {
+                m.reset(value, settings);
+            }
+            value = m.get();
         } else if (typeof m === "function") {
             value = m(value, settings);
         } else {
-            throw new Error("Expected function or CacheSeq as method step, got " + typeof m);
+            throw new Error("Expected function, CacheSeq or CacheMat as method step, got " + typeof m);
         }
     }
 
@@ -154,7 +170,7 @@ function redraw_canvas(bg = false, exp = false) {
     if (typeof last_step === "function") {
         last_step(ctx, value, settings, exp);
     } else {
-        throw new Error("Expected function as method step, got " + typeof last_step);
+        throw new Error("Expected function as last method step, got " + typeof last_step);
     }
 
     drop_cache = false;
@@ -225,14 +241,14 @@ function update_settings() {
 
         html += s.settings
             .replace(/\{var\}/g, var_name)
-            .replace(/\{(\d+)\*(\d+):([\w_]+)\.([\w_]+)(?:=\[([^\}]+)\])?\}/g, (_, width, height, ctx, name, def = "") => {
-                let table = def.split(",");
-
+            .replace(/\{(\d+)\*(\d+):([\w_]+)\.([\w_]+)(?:=\[([^\}]+)\]|=(\d+))?\}/g, (_, width, height, ctx, name, default_table, default_value = "0") => {
                 if (isNaN(+width) || +width <= 0) throw new Error("Invalid width in input field: " + width);
                 if (isNaN(+height) || +height <= 0) throw new Error("Invalid height in input field: " + height);
 
                 width = +width;
                 height = +height;
+
+                let table = default_table ? default_table.split(",") : [...new Array(width * height)].fill(+default_value);
 
                 if (table.length !== width * height) throw new Error("Invalid default: length isn't equal to width * height", table);
 
@@ -247,7 +263,7 @@ function update_settings() {
                     res += "<tr>";
                     for (let x = 0; x < width; x++) {
                         res += "<td>";
-                        res += to_table_setting(table[x + y * width], ctx, name, x + y * width, d);
+                        res += to_table_setting(settings[ctx][name][x + y * width], ctx, name, x + y * width, d);
                         res += "</td>";
                     }
                     res += "</tr>";
@@ -322,11 +338,11 @@ function update_colors() {
 }
 
 function to_setting(value, ctx, name, drop_cache = false) {
-    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
+    return `<span class="input ${ctx}__${name}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}; redraw_canvas()">${value}</span>`;
 }
 
 function to_table_setting(value, ctx, name, index, drop_cache = false) {
-    return `<span class="input ${ctx}__${name}__${index}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'][${index}] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}">${value}</span>`;
+    return `<span class="input ${ctx}__${name}__${index}" contenteditable="true" onkeyup="settings['${ctx}']['${name}'][${index}] = this.innerText;${drop_cache ? "drop_cache = true;" : ""}; redraw_canvas()">${value}</span>`;
 }
 
 // TODO: use DOM objects and make the sub-elements respond to clicks/enter aswell

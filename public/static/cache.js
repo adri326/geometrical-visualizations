@@ -43,10 +43,41 @@ class CacheSeq {
     }
 }
 
+class CacheMat {
+    constructor(mat) {
+        this.mat = mat;
+        this.args = [];
+        this.cache = null;
+    }
+
+    reset(...args) {
+        this.args = args;
+        this.cache = null;
+    }
+
+    get() {
+        if (this.cache === null) {
+            this.cache = this.mat(...this.args);
+        }
+        return this.cache;
+    }
+}
+
 function cachify(obj) {
     let res = {};
     for (let key in obj) {
         res[key] = new CacheSeq(obj[key]);
+        for (let prop of Reflect.ownKeys(obj[key])) {
+            Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
+        }
+    }
+    return res;
+}
+
+function cachify_mat(obj) {
+    let res = {};
+    for (let key in obj) {
+        res[key] = new CacheMat(obj[key]);
         for (let prop of Reflect.ownKeys(obj[key])) {
             Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
         }
