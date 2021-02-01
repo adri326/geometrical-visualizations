@@ -142,7 +142,7 @@ function turtle(ctx, seq, settings) {
             ctx.lineTo(...pos);
         }
     }
-    ctx.lineWidth = 2;
+    ctx.lineWidth = scale < 2 ? 1 : 2;
     ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }
@@ -221,7 +221,7 @@ function turtle_mod2(ctx, seq, settings) {
         else direction += 0.5 * Math.PI;
         ctx.lineTo(...pos);
     }
-    ctx.lineWidth = 2;
+    ctx.lineWidth = scale < 2 ? 1 : 2;
     ctx.strokeStyle = settings.colors.main;
     ctx.stroke();
 }

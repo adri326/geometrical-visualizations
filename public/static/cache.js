@@ -11,6 +11,7 @@ class CacheSeq {
         this.instance = this.seq(...args);
         this.cache = [];
         this.index = 0;
+        this.done = false;
     }
 
     rewind() {

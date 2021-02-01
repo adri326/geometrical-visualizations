@@ -234,12 +234,50 @@ recaman_mult.settings = `
     </li>
 `;
 
+function* composite_numbers(settings) {
+    let modulo = BigInt(settings.composite_numbers.modulo);
+    let offset = BigInt(settings.composite_numbers.offset);
+
+    if (modulo <= 0n || offset < 0n || offset >= modulo) return;
+
+    for (let x = offset; true; x += modulo) {
+        let prime = true;
+        if (x == 1n) {
+            yield 1n;
+            continue;
+        }
+        if (x == 2n || x == 3n) continue;
+        for (let y = 3n; y * y <= x; y += 2n) {
+            if (x % y == 0n) {
+                prime = false;
+                break;
+            }
+        }
+
+        if (!prime) yield x;
+    }
+}
+composite_numbers.display_name = "Composite Numbers";
+composite_numbers.var = `<span class="variable one">C</span><sub><span class="variable two">n</span></sub>`;
+composite_numbers.settings = `
+    <li>
+        Let <span class="variable one">C</span><sub><span class="variable two">n</span></sub> be the <span class="variable two">n</span>-th number, such that, ∀ <span class="variable two">n</span>:
+    </li>
+    <li>
+        <span class="variable one">C</span><sub><span class="variable two">n</span></sub> is not prime;
+    </li>
+    <li>
+        ∃ <span class="variable two">λ</span>, <span class="variable one">C</span><sub><span class="variable two">n</span></sub> = {composite_numbers.modulo=2} · <span class="variable two">λ</span> + {composite_numbers.offset=1}.
+    </li>
+`;
+
 const SEQ = {
     fibonacci,
     polynomial,
     exponential,
     primes,
     dprimes,
+    composite_numbers,
     collatz,
     random,
     recaman,
