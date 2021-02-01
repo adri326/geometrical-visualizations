@@ -1,7 +1,7 @@
 # Geometrical visualizations
 
 Visualize integer sequences and other mathematically-defined objects in your browser!
-[You can see it live here!](http://shadamethyst.xyz:8420/)
+[You can see it live here!](https://shadamethyst.xyz/geometrical-visualizations/)
 
 This small project aims to provide entertaining and interesting geometrical visualizations of common mathematical objects, like sequences, matrices, etc.
 The interface lets the user select which sequence/matrix/etc. is visualized, the visualization method used and tweak several of their parameters.
