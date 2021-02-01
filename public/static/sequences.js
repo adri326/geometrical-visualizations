@@ -165,6 +165,75 @@ random.settings = `
     </li>
 `;
 
+function* recaman(settings) {
+    let r = BigInt(settings.recaman.r0);
+    let encountered = new Set([0n]);
+
+    yield r;
+    let n = 0n;
+    while (true) {
+        n += 1n;
+        if (r - n > 0n && !encountered.has(r - n)) {
+            encountered.add(r - n);
+            r = r - n;
+            yield r;
+        } else {
+            encountered.add(r + n);
+            r = r + n;
+            yield r;
+        }
+    }
+}
+recaman.display_name = "Recamán";
+recaman.var = `<span class="variable one">R</span><sub><span class="variable two">n</span></sub>`;
+recaman.settings = `
+    <li>
+        Let <span class="variable one">R</span><sub>0</sub> = {recaman.r0=0}.
+    </li>
+    <li>
+        ∀ <span class="variable two">n</span>, <span class="variable one">R</span><sub><span class="variable two">n</span> + 1</sub> =
+            <br />
+            <span class="variable one">R</span><sub><span class="variable two">n</span></sub> - <span class="variable two">n</span>
+            if <span class="variable one">R</span><sub><span class="variable two">n</span></sub> - <span class="variable two">n</span> &gt; 0
+            and isn't already in the sequence;
+            <br />
+            <span class="variable one">R</span><sub><span class="variable two">n</span></sub> + <span class="variable two">n</span>
+            otherwise.
+    </li>
+`;
+
+function* recaman_mult(settings) {
+    let r = BigInt(settings.recaman_mult.r1);
+    yield r;
+
+    let n = 1n;
+    while (true) {
+        n += 1n;
+        if (r % n == 0n) {
+            r = r / n;
+        } else {
+            r = r * n;
+        }
+        yield r;
+    }
+}
+recaman_mult.display_name = "Recamán (Multiplicative)";
+recaman_mult.var = `<span class="variable one">R'</span><sub><span class="variable two">n</span></sub>`;
+recaman_mult.settings = `
+    <li>
+        Let <span class="variable one">R'</span><sub>1</sub> = {recaman_mult.r1=1}.
+    </li>
+    <li>
+        ∀ <span class="variable two">n</span> &gt; 0, <span class="variable one">R'</span><sub><span class="variable two">n</span> + 1</sub> =
+            <br />
+            <span class="variable one">R'</span><sub><span class="variable two">n</span></sub> / <span class="variable two">n</span>
+            if <span class="variable two">n</span> divides <span class="variable one">R'</span><sub><span class="variable two">n</span></sub>
+            <br />
+            <span class="variable one">R'</span><sub><span class="variable two">n</span></sub> · <span class="variable two">n</span>
+            otherwise.
+    </li>
+`;
+
 const SEQ = {
     fibonacci,
     polynomial,
@@ -173,4 +242,6 @@ const SEQ = {
     dprimes,
     collatz,
     random,
+    recaman,
+    recaman_mult,
 };
