@@ -271,6 +271,34 @@ composite_numbers.settings = `
     </li>
 `;
 
+function* totient(settings) {
+    function phi(n) {
+        let res = n;
+        for (let i = 2n; i * i <= n; i++) {
+            if (n % i == 0n) {
+                while (n % i == 0n) {
+                    n /= i;
+                }
+                res -= res / i;
+            }
+        }
+        if (n > 1) res -= res / n;
+        return res;
+    }
+
+    for (let n = 1n; true; n += 1n) {
+        yield phi(n);
+    }
+}
+totient.display_name = "Euler's Totient";
+totient.var = `<span class="variable one">φ</span>(<span class="variable two">n</span>)`;
+totient.settings = `
+    <li>
+        Let <span class="variable one">φ</span>(<span class="variable two">n</span>) be Euler's totient function,
+        which counts the positive integers up to <span class="variable two">n</span> which are coprime to <span class="variable two">n</span>.
+    </li>
+`;
+
 const SEQ = {
     fibonacci,
     polynomial,
@@ -282,4 +310,5 @@ const SEQ = {
     random,
     recaman,
     recaman_mult,
+    totient,
 };

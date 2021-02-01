@@ -76,7 +76,9 @@ function spiral_count(seq, settings) {
     let x = loops;
     let y = loops;
 
-    let count = 0;
+    indices[loops][loops] = 0;
+
+    let count = 1;
     while (dist < size) {
         // Go down by one
         y += 1;
@@ -120,7 +122,7 @@ function spiral_count(seq, settings) {
     for (let n = 0; n < n_steps; n++) {
         let next = seq.next();
         if (next.value !== undefined) {
-            if (next.value < BigInt(size * size)) {
+            if (next.value < BigInt(size * size) && next.value >= 0n) {
                 let [x, y] = coords[next.value];
                 res[y][x] += 1n;
             }
