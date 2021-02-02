@@ -30,6 +30,10 @@ let settings = {
     }
 };
 
+let current_rendering_symbol = Symbol();
+
+const MAX_DELTA = 1000 / 10;
+
 // Methods (TODO: use arrays and make it more modular)
 const METHODS = {
     seq: {
@@ -124,6 +128,8 @@ window.addEventListener("load", () => {
 });
 
 function redraw_canvas(bg = false, exp = false) {
+    current_rendering_symbol = Symbol();
+    let rendering_symbol = current_rendering_symbol;
     ctx.clearRect(0, 0, ctx.width, ctx.height);
     if (bg) {
         ctx.fillStyle = settings.colors.bg;
@@ -144,6 +150,10 @@ function redraw_canvas(bg = false, exp = false) {
             value.reset(settings);
         }
         value = value.get();
+    } else if (value instanceof CacheMatGen) {
+        if (drop_cache) {
+            value.reset(settings);
+        }
     } else if (typeof value === "function") {
         value = value(settings);
     } else {
@@ -164,6 +174,11 @@ function redraw_canvas(bg = false, exp = false) {
                 m.reset(value, settings);
             }
             value = m.get();
+        } else if (m instanceof CacheMatGen) {
+            if (drop_cache) {
+                m.reset(value, settings);
+            }
+            value = m;
         } else if (typeof m === "function") {
             value = m(value, settings);
         } else {
@@ -174,7 +189,19 @@ function redraw_canvas(bg = false, exp = false) {
     let last_step = steps[steps.length - 1][current_selections[steps.length - 1]];
 
     if (typeof last_step === "function") {
-        last_step(ctx, value, settings, exp);
+        let res = last_step(ctx, value, settings, exp);
+        if (typeof res === "object" && res.next) {
+            let f = () => {
+                let start = performance.now();
+                if (rendering_symbol == current_rendering_symbol) {
+                    while (performance.now() - start < MAX_DELTA) {
+                        if (res.next().done) return;
+                    }
+                    window.requestAnimationFrame(f);
+                }
+            };
+            window.requestAnimationFrame(f);
+        }
     } else {
         throw new Error("Expected function as last method step, got " + typeof last_step);
     }

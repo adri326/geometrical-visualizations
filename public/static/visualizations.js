@@ -1,4 +1,4 @@
-function circle_number(ctx, seq, settings) {
+function* circle_number(ctx, seq, settings) {
     let modulo = +settings.circle_number.modulo;
     let radius = Math.min(ctx.width, ctx.height) * 0.4;
     let node_radius = 4;
@@ -29,6 +29,7 @@ function circle_number(ctx, seq, settings) {
     }
 
     for (let n = 0; (n < modulo || !is_pattern_repeated()) && n <= modulo ** 2; n++) {
+        yield true;
         let next = seq.next();
         if (next.value !== undefined) {
             pattern.push(Number(next.value % BigInt(modulo)));

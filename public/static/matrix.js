@@ -191,7 +191,7 @@ turmite.settings = `
     </li>
 `;
 
-function mandelbrot(settings) {
+function* mandelbrot(settings) {
     let z0 = [+settings.mandelbrot.z0r, +settings.mandelbrot.z0i];
     let xmin = +settings.mandelbrot.minr;
     let xmax = +settings.mandelbrot.maxr;
@@ -218,7 +218,7 @@ function mandelbrot(settings) {
         isNaN(z0[1])
     ) return [[]];
 
-    let res = [];
+    let res = new Array(height);
     for (let y = 0; y < height; y++) {
         let row = [];
         for (let x = 0; x < width; x++) {
@@ -260,7 +260,8 @@ function mandelbrot(settings) {
             }
         }
 
-        res.push(row);
+        res[y] = row;
+        yield res;
     }
 
     return res;
@@ -286,7 +287,7 @@ mandelbrot.settings = `
 `;
 
 
-function julia(settings) {
+function* julia(settings) {
     let c = [+settings.julia.cr, +settings.julia.ci];
     let xmin = +settings.julia.minr;
     let xmax = +settings.julia.maxr;
@@ -313,7 +314,7 @@ function julia(settings) {
         isNaN(c[1])
     ) return [[]];
 
-    let res = [];
+    let res = new Array(height);
     for (let y = 0; y < height; y++) {
         let row = [];
         for (let x = 0; x < width; x++) {
@@ -354,7 +355,8 @@ function julia(settings) {
             }
         }
 
-        res.push(row);
+        res[y] = row;
+        yield res;
     }
 
     return res;

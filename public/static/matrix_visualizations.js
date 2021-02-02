@@ -1,4 +1,9 @@
 function matrix_odd(ctx, mat, settings, exp) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) v = mat.next();
+        mat = v.value;
+    }
     let modulo = BigInt(settings.matrix_odd.modulo);
     let evenness = settings.matrix_odd.evenness;
 
@@ -27,6 +32,11 @@ matrix_odd.settings = `
 `;
 
 function matrix_multiple(ctx, mat, settings, exp) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) v = mat.next();
+        mat = v.value;
+    }
     let modulo = BigInt(settings.matrix_multiple.modulo);
     let search = BigInt(settings.matrix_multiple.value);
 
@@ -55,6 +65,11 @@ matrix_multiple.settings = `
 `;
 
 function matrix_mod(ctx, mat, settings, exp) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) v = mat.next();
+        mat = v.value;
+    }
     let modulo = BigInt(settings.matrix_mod.modulo);
 
     if (modulo <= 1n) return;
@@ -98,6 +113,11 @@ matrix_mod.settings = `
 `;
 
 function matrix_gt(ctx, mat, settings, exp) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) v = mat.next();
+        mat = v.value;
+    }
     let min = BigInt(settings.matrix_gt.min);
 
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
@@ -122,7 +142,12 @@ matrix_gt.settings = `
     </li>
 `;
 
-function matrix_gradient_auto(ctx, mat, settings, exp) {
+function* matrix_gradient_auto(ctx, mat, settings, exp) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) yield v = mat.next();
+        mat = v.value;
+    }
     if (mat.length == 0 || mat[0].length == 0) return; // Empty matrix
     let [sx, sy, dx, dy, width, height] = fit_matrix(ctx, mat, settings, exp);
 
@@ -162,6 +187,7 @@ function matrix_gradient_auto(ctx, mat, settings, exp) {
     if (min != max) {
         for (let y = 0; y < mat.length; y++) {
             let vy = sy + y * dy;
+            yield true;
             for (let x = 0; x < mat[0].length; x++) {
                 let vx = sx + x * dx;
                 let value = Number(mat[y][x] - min) / Number(max - min);

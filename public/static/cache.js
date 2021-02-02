@@ -63,6 +63,37 @@ class CacheMat {
     }
 }
 
+class CacheMatGen {
+    constructor(mat) {
+        this.mat = mat;
+        this.instance = null;
+        this.cache = null;
+        this.done = false;
+    }
+
+    reset(...args) {
+        this.instance = this.mat(...args);
+        this.cache = null;
+        this.done = false;
+    }
+
+    next() {
+        if (this.done) {
+            return {
+                value: this.cache,
+                done: true
+            };
+        } else {
+            let res = this.instance.next();
+            if (res.value !== undefined) {
+                this.cache = res.value;
+            }
+            this.done = res.done;
+            return res;
+        }
+    }
+}
+
 function cachify(obj) {
     let res = {};
     for (let key in obj) {
@@ -77,9 +108,16 @@ function cachify(obj) {
 function cachify_mat(obj) {
     let res = {};
     for (let key in obj) {
-        res[key] = new CacheMat(obj[key]);
-        for (let prop of Reflect.ownKeys(obj[key])) {
-            Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
+        if (obj[key].constructor.name === "GeneratorFunction") {
+            res[key] = new CacheMatGen(obj[key]);
+            for (let prop of Reflect.ownKeys(obj[key])) {
+                Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
+            }
+        } else {
+            res[key] = new CacheMat(obj[key]);
+            for (let prop of Reflect.ownKeys(obj[key])) {
+                Reflect.set(res[key], prop, Reflect.get(obj[key], prop));
+            }
         }
     }
     return res;

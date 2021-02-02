@@ -207,6 +207,12 @@ function zero_matrix(width, height) {
 }
 
 function mat2mat_monomial(mat, settings) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) v = mat.next();
+        mat = v.value;
+    }
+
     let a = BigInt(settings.mat2mat_monomial.a);
     let b = BigInt(settings.mat2mat_monomial.b);
     let n = BigInt(settings.mat2mat_monomial.n);
@@ -228,7 +234,15 @@ mat2mat_monomial.settings = `
     </li>
 `;
 
-function mat2mat_inside(mat, settings) {
+function* mat2mat_inside(mat, settings) {
+    if (mat.next) {
+        let v = mat.next();
+        while (!v.done) {
+            v = mat.next();
+            yield [[]];
+        }
+        mat = v.value;
+    }
     let diagonal = !settings.mat2mat_inside.mode;
     let op = settings.mat2mat_inside.op;
     let min = BigInt(settings.mat2mat_inside.min);
@@ -268,8 +282,10 @@ function mat2mat_inside(mat, settings) {
         }
     }
 
+    let n = 0;
     // It's gonna be DFS
     while (stack.length) {
+        if (++n % 100 == 0) yield res;
         let [x, y] = stack.pop();
         if (test(mat[y][x]) && res[y][x] !== outside) {
             res[y][x] = outside;
