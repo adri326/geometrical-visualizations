@@ -205,3 +205,105 @@ const MAT_TRANS = {
 function zero_matrix(width, height) {
     return [...new Array(height)].map(_ => [...new Array(width)].fill(0n));
 }
+
+function mat2mat_monomial(mat, settings) {
+    let a = BigInt(settings.mat2mat_monomial.a);
+    let b = BigInt(settings.mat2mat_monomial.b);
+    let n = BigInt(settings.mat2mat_monomial.n);
+
+    let res = [];
+    for (row of mat) {
+        res.push(row.map(x => a * (x ** n) + b));
+    }
+    return res;
+}
+mat2mat_monomial.display_name = "Pointwise Monomial";
+mat2mat_monomial.var = `<span class="variable one">P</span>({var})`;
+mat2mat_monomial.settings = `
+    <li>
+        Let <span class="variable one">P</span>(<span class="variable three">X</span>) = {mat2mat_monomial.a=1} · <span class="variable three">X</span> ^ {mat2mat_monomial.n=1} + {mat2mat_monomial.b=0}.
+    </li>
+    <li>
+        With <span class="variable one">A</span> ^ <span class="variable two">n</span> = (<span class="variable one">A</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> <sup><span class="variable two">n</span></sup>)<sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>
+    </li>
+`;
+
+function mat2mat_inside(mat, settings) {
+    let diagonal = !settings.mat2mat_inside.mode;
+    let op = settings.mat2mat_inside.op;
+    let min = BigInt(settings.mat2mat_inside.min);
+    let inside = BigInt(settings.mat2mat_inside.inside);
+    let outside = BigInt(settings.mat2mat_inside.outside);
+
+    let test;
+    if (op) {
+        test = (value) => value > min;
+    } else {
+        test = (value) => value < min;
+    }
+
+    if (mat.length == 0) return mat;
+
+    let height = mat.length;
+    let width = mat[0].length;
+
+    let res = fill_matrix(width, height, inside);
+    if (outside === inside) return res;
+
+    let stack = [];
+    for (let x = 0; x < width; x++) {
+        if (test(mat[0][x])) {
+            stack.push([x, 0]);
+        }
+        if (test(mat[height - 1][x])) {
+            stack.push([x, height - 1]);
+        }
+    }
+    for (let y = 0; y < height; y++) {
+        if (test(mat[y][0])) {
+            stack.push([0, y]);
+        }
+        if (test(mat[y][width - 1])) {
+            stack.push([width - 1, y]);
+        }
+    }
+
+    // It's gonna be DFS
+    while (stack.length) {
+        let [x, y] = stack.pop();
+        if (test(mat[y][x]) && res[y][x] !== outside) {
+            res[y][x] = outside;
+            if (x >= 1) {
+                stack.push([x - 1, y]);
+                if (diagonal) {
+                    if (y >= 1) stack.push([x - 1, y - 1]);
+                    if (y < height - 1) stack.push([x - 1, y + 1]);
+                }
+            }
+            if (x < width - 1) {
+                stack.push([x + 1, y]);
+                if (diagonal) {
+                    if (y >= 1) stack.push([x + 1, y - 1]);
+                    if (y < height - 1) stack.push([x + 1, y + 1]);
+                }
+            }
+            if (y >= 1) stack.push([x, y - 1]);
+            if (y < height - 1) stack.push([x, y + 1]);
+        }
+    }
+
+    return res;
+}
+mat2mat_inside.display_name = "Inside";
+mat2mat_inside.var = `<span class="variable one">I</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>`;
+mat2mat_inside.settings = `
+    <li>
+        Let <span class="variable one">I</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = {mat2mat_inside.outside=0} if (<span class="variable two">x</span>, <span class="variable three">y</span>) has a {mat2mat_inside.mode=orthogonal|diagonal} path of squares where {var} {mat2mat_inside.op=is greater than|is less than} {mat2mat_inside.min=0} to the edge of the matrix (ie. if it is outside).
+        <span class="variable one">I</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = {mat2mat_inside.inside=1} otherwise (if it is inside).
+    </li>
+`;
+
+const MAT2MAT_TRANS = {
+    mat2mat_monomial,
+    mat2mat_inside,
+}

@@ -61,6 +61,12 @@ const METHODS = {
         defaults: ["chess", "matrix_gradient_auto"],
         drop_cache: [true, false],
         display_name: "Matrix",
+    },
+    mat_trans: {
+        steps: [cachify_mat(MAT), cachify_mat(MAT2MAT_TRANS), MAT_VIZ],
+        defaults: ["chess", "monomial", "matrix_gradient_auto"],
+        drop_cache: [true, true, false],
+        display_name: "Matrix → f",
     }
 }
 
