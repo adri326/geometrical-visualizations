@@ -349,7 +349,6 @@ function to_table_setting(value, ctx, name, index, drop_cache = false) {
 function to_boolean_setting(value, left, right, ctx, name, drop_cache = false) {
     return `<span class="input boolean ${value ? "left" : "right"} ${ctx}__${name}" onclick="
         settings['${ctx}']['${name}'] = !settings['${ctx}']['${name}'];
-        console.log(this.classList);
         this.classList.remove('left');
         this.classList.remove('right');
         this.classList.add(settings['${ctx}']['${name}'] ? 'left' : 'right');
