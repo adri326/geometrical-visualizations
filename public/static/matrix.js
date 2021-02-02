@@ -191,10 +191,200 @@ turmite.settings = `
     </li>
 `;
 
+function mandelbrot(settings) {
+    let z0 = [+settings.mandelbrot.z0r, +settings.mandelbrot.z0i];
+    let xmin = +settings.mandelbrot.minr;
+    let xmax = +settings.mandelbrot.maxr;
+    let ymin = +settings.mandelbrot.mini;
+    let ymax = +settings.mandelbrot.maxi;
+    let d = +settings.mandelbrot.d;
+    let steps = +settings.mandelbrot.steps;
+    let width = +settings.mandelbrot.width;
+    let height = +settings.mandelbrot.height;
+
+    if (
+        isNaN(steps) ||
+        steps <= 0 ||
+        isNaN(xmin) ||
+        isNaN(xmax) ||
+        isNaN(ymin) ||
+        isNaN(ymax) ||
+        isNaN(d) ||
+        isNaN(width) ||
+        width <= 1 ||
+        isNaN(height) ||
+        height <= 1 ||
+        isNaN(z0[0]) ||
+        isNaN(z0[1])
+    ) return [[]];
+
+    let res = [];
+    for (let y = 0; y < height; y++) {
+        let row = [];
+        for (let x = 0; x < width; x++) {
+            let n = 0;
+            let z = [z0[0], z0[1]];
+            let c = [
+                x / (width - 1) * (xmax - xmin) + xmin,
+                y / (height - 1) * (ymax - ymin) + ymin,
+            ];
+            for (; n < steps; n++) {
+                if (z[0] * z[0] + z[1] * z[1] >= 4) break;
+                if (d === 2) {
+                    let zr = c[0] + z[0] * z[0] - z[1] * z[1];
+                    let zi = c[1] + 2 * z[0] * z[1];
+                    z[0] = zr;
+                    z[1] = zi;
+                } else {
+                    if (z[0] === 0 && z[1] === 0) {
+                        z[0] += c[0];
+                        z[1] += c[1];
+                    } else {
+                        // Algorithm from complex.js <3
+                        let theta = Math.atan2(z[1], z[0]);
+                        let logh = Math.log(z[0] * z[0] + z[1] * z[1]) * 0.5; // This is faster apparently
+                        // let logh = Math.log(z[0] / Math.cos(theta));
+
+                        let zr = Math.exp(d * logh); // (... - d_img * theta);
+                        let zt = d * theta; // d_img * logh + ...
+
+                        z[0] = zr * Math.cos(zt) + c[0];
+                        z[1] = zr * Math.sin(zt) + c[1];
+                    }
+                }
+            }
+            if (z[0] * z[0] + z[1] * z[1] >= 4) {
+                row.push(BigInt(n));
+            } else {
+                row.push(-1n);
+            }
+        }
+
+        res.push(row);
+    }
+
+    return res;
+}
+mandelbrot.display_name = "Mandelbrot Set";
+mandelbrot.var = `<span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>`;
+mandelbrot.settings = `
+    <li>
+        Let <span class="variable two">c</span> ∈ ℂ, <span class="variable one">f</span><sub><span class="variable two">c</span></sub>(<span class="variable three">z</span>) = <span class="variable three">z</span><sup><span class="variable two">d</span></sup> + <span class="variable two">c</span>, with <span class="variable two">d</span> = {mandelbrot.d=2}.
+    </li>
+    <li>
+        Let <span class="variable two">z</span><sub>0</sub> = {mandelbrot.z0r=0} + <i>i</i> · {mandelbrot.z0i=0}.
+    </li>
+    <li>
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {mandelbrot.steps=1000}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+    </li>
+    <li>
+        Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">c</span>) = {mandelbrot.minr=-2};<br />
+        Map <span class="variable two">x</span> = {mandelbrot.width=100} - 1 to ℛ(<span class="variable two">c</span>) = {mandelbrot.maxr=2};<br />
+        Map <span class="variable two">y</span> = 0 to ℐ(<span class="variable two">c</span>) = {mandelbrot.mini=-2};<br />
+        Map <span class="variable two">y</span> = {mandelbrot.height=100} - 1 to ℐ(<span class="variable two">c</span>) = {mandelbrot.maxi=2};<br />
+    </li>
+`;
+
+
+function julia(settings) {
+    let c = [+settings.julia.cr, +settings.julia.ci];
+    let xmin = +settings.julia.minr;
+    let xmax = +settings.julia.maxr;
+    let ymin = +settings.julia.mini;
+    let ymax = +settings.julia.maxi;
+    let d = +settings.julia.d;
+    let steps = +settings.julia.steps;
+    let width = +settings.julia.width;
+    let height = +settings.julia.height;
+
+    if (
+        isNaN(steps) ||
+        steps <= 0 ||
+        isNaN(xmin) ||
+        isNaN(xmax) ||
+        isNaN(ymin) ||
+        isNaN(ymax) ||
+        isNaN(d) ||
+        isNaN(width) ||
+        width <= 1 ||
+        isNaN(height) ||
+        height <= 1 ||
+        isNaN(c[0]) ||
+        isNaN(c[1])
+    ) return [[]];
+
+    let res = [];
+    for (let y = 0; y < height; y++) {
+        let row = [];
+        for (let x = 0; x < width; x++) {
+            let n = 0;
+            let z = [
+                x / (width - 1) * (xmax - xmin) + xmin,
+                y / (height - 1) * (ymax - ymin) + ymin,
+            ];
+            for (; n < steps; n++) {
+                if (z[0] * z[0] + z[1] * z[1] >= 4) break;
+                if (d === 2) {
+                    let zr = c[0] + z[0] * z[0] - z[1] * z[1];
+                    let zi = c[1] + 2 * z[0] * z[1];
+                    z[0] = zr;
+                    z[1] = zi;
+                } else {
+                    if (z[0] === 0 && z[1] === 0) {
+                        z[0] += c[0];
+                        z[1] += c[1];
+                    } else {
+                        // Algorithm from complex.js <3
+                        let theta = Math.atan2(z[1], z[0]);
+                        let logh = Math.log(z[0] * z[0] + z[1] * z[1]) * 0.5; // This is faster apparently
+                        // let logh = Math.log(z[0] / Math.cos(theta));
+
+                        let zr = Math.exp(d * logh); // (... - d_img * theta);
+                        let zt = d * theta; // d_img * logh + ...
+
+                        z[0] = zr * Math.cos(zt) + c[0];
+                        z[1] = zr * Math.sin(zt) + c[1];
+                    }
+                }
+            }
+            if (z[0] * z[0] + z[1] * z[1] >= 4) {
+                row.push(BigInt(n));
+            } else {
+                row.push(-1n);
+            }
+        }
+
+        res.push(row);
+    }
+
+    return res;
+}
+julia.display_name = "Julia Set";
+julia.var = `<span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>`;
+julia.settings = `
+    <li>
+        Let <span class="variable two">c</span> ∈ ℂ, <span class="variable one">f</span><sub><span class="variable two">c</span></sub>(<span class="variable three">z</span>) = <span class="variable three">z</span><sup><span class="variable two">d</span></sup> + <span class="variable two">c</span>, with <span class="variable two">d</span> = {julia.d=2}.
+    </li>
+    <li>
+        Let <span class="variable two">c</span> = {julia.cr=0} + <i>i</i> · {julia.ci=0}.
+    </li>
+    <li>
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {julia.steps=1000}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+    </li>
+    <li>
+        Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">z</span><sub>0</sub>) = {julia.minr=-2};<br />
+        Map <span class="variable two">x</span> = {julia.width=100} - 1 to ℛ(<span class="variable two">z</span><sub>0</sub>) = {julia.maxr=2};<br />
+        Map <span class="variable two">y</span> = 0 to ℐ(<span class="variable two">z</span><sub>0</sub>) = {julia.mini=-2};<br />
+        Map <span class="variable two">y</span> = {julia.height=100} - 1 to ℐ(<span class="variable two">z</span><sub>0</sub>) = {julia.maxi=2};<br />
+    </li>
+`;
+
 const MAT = {
     chess,
     ant,
-    turmite
+    turmite,
+    mandelbrot,
+    julia,
 };
 
 function fill_matrix(width, height, value) {
