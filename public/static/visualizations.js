@@ -29,7 +29,6 @@ function* circle_number(ctx, seq, settings) {
     }
 
     for (let n = 0; (n < modulo || !is_pattern_repeated()) && n <= modulo ** 2; n++) {
-        yield true;
         let next = seq.next();
         if (next.value !== undefined) {
             pattern.push(Number(next.value % BigInt(modulo)));
@@ -37,6 +36,7 @@ function* circle_number(ctx, seq, settings) {
             break;
         }
         if (next.done) break;
+        if (n % PSI == 0) yield true;
     }
 
     let non_clip = ctx.save();
@@ -58,6 +58,7 @@ function* circle_number(ctx, seq, settings) {
         } else {
             ctx.lineTo(x + dx, y + dy);
         }
+        if (n % PSI == 0) yield true;
     }
     ctx.stroke();
 
@@ -86,7 +87,7 @@ circle_number.settings = `
 </li>
 `;
 
-function turtle(ctx, seq, settings) {
+function* turtle(ctx, seq, settings) {
     let modulo = +settings.turtle.modulo;
     let scale = +settings.turtle.scale;
     let n_steps = +settings.turtle.steps;
@@ -121,6 +122,7 @@ function turtle(ctx, seq, settings) {
             break;
         }
         if (next.done) break;
+        if (n % PSI == 0) yield true;
     }
 
     direction = 0;
@@ -133,6 +135,7 @@ function turtle(ctx, seq, settings) {
 
     ctx.beginPath();
     ctx.moveTo(...pos);
+    let n = 0;
     for (let value of pattern) {
         pos[0] += scale * Math.cos(direction);
         pos[1] += scale * Math.sin(direction);
@@ -142,6 +145,7 @@ function turtle(ctx, seq, settings) {
         } else {
             ctx.lineTo(...pos);
         }
+        if (n++ % PSI == 0) yield true;
     }
     ctx.lineWidth = scale < 2 ? 1 : 2;
     ctx.strokeStyle = settings.colors.main;
@@ -166,7 +170,7 @@ turtle.settings = `
 </li>
 `;
 
-function turtle_mod2(ctx, seq, settings) {
+function* turtle_mod2(ctx, seq, settings) {
     let modulo = +settings.turtle_mod2.modulo;
     let scale = +settings.turtle_mod2.scale;
     let n_steps = +settings.turtle_mod2.steps;
@@ -204,6 +208,7 @@ function turtle_mod2(ctx, seq, settings) {
             break;
         }
         if (next.done) break;
+        if (n % PSI == 0) yield true;
     }
 
     direction = 0;
@@ -214,6 +219,7 @@ function turtle_mod2(ctx, seq, settings) {
 
     ctx.beginPath();
     ctx.moveTo(...pos);
+    let n = 0;
     for (let value of pattern) {
         if (noop && value == 0) continue;
         pos[0] += scale * Math.cos(direction);
@@ -221,6 +227,7 @@ function turtle_mod2(ctx, seq, settings) {
         if (value % 2 == 0) direction -= 0.5 * Math.PI;
         else direction += 0.5 * Math.PI;
         ctx.lineTo(...pos);
+        if (n++ % PSI == 0) yield true;
     }
     ctx.lineWidth = scale < 2 ? 1 : 2;
     ctx.strokeStyle = settings.colors.main;
@@ -248,7 +255,7 @@ turtle_mod2.settings = `
 </li>
 `;
 
-function bar_graph(ctx, seq, settings) {
+function* bar_graph(ctx, seq, settings) {
     let modulo = BigInt(settings.bar_graph.modulo);
     let spacing = +settings.bar_graph.spacing;
     let node_radius = 4;
@@ -282,6 +289,7 @@ function bar_graph(ctx, seq, settings) {
             }
         }
         if (next.done) break;
+        if (x % PSI == 0) yield true;
     }
 }
 bar_graph.display_name = "Bar Graph";
@@ -294,7 +302,7 @@ bar_graph.settings = `
 </li>
 `;
 
-function loops(ctx, seq, settings) {
+function* loops(ctx, seq, settings) {
     let max = BigInt(settings.loops.max);
     let min = BigInt(settings.loops.min);
     let n_steps = +settings.loops.steps;
@@ -310,6 +318,13 @@ function loops(ctx, seq, settings) {
     let last = null;
     let identities = [];
     let pairs = [];
+
+    ctx.beginPath();
+    ctx.moveTo(...pos(min));
+    ctx.lineTo(...pos(max));
+    ctx.strokeStyle = settings.colors.main;
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     for (let n = 0; n < n_steps; n++) {
         let next = seq.next();
@@ -350,14 +365,9 @@ function loops(ctx, seq, settings) {
         }
 
         if (next.done) break;
-    }
 
-    ctx.beginPath();
-    ctx.moveTo(...pos(min));
-    ctx.lineTo(...pos(max));
-    ctx.strokeStyle = settings.colors.main;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        if (n % PSI == 0) yield true;
+    }
 
     if (ctx.width / Number(max - min) > 10) {
         for (let x = min; x <= max; x += 1n) {
@@ -388,7 +398,7 @@ loops.settings = `
 </li>
 `;
 
-function loops_modulo(ctx, seq, settings) {
+function* loops_modulo(ctx, seq, settings) {
     let modulo = BigInt(settings.loops_modulo.modulo);
     let min = BigInt(settings.loops_modulo.min);
     let n_steps = +settings.loops_modulo.steps;
@@ -405,6 +415,13 @@ function loops_modulo(ctx, seq, settings) {
     let last = null;
     let identities = [];
     let pairs = [];
+
+    ctx.beginPath();
+    ctx.moveTo(...pos(min));
+    ctx.lineTo(...pos(modulo - 1n));
+    ctx.strokeStyle = settings.colors.main;
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     for (let n = 0; n < n_steps; n++) {
         let next = seq.next();
@@ -443,14 +460,9 @@ function loops_modulo(ctx, seq, settings) {
         }
 
         if (next.done) break;
-    }
 
-    ctx.beginPath();
-    ctx.moveTo(...pos(min));
-    ctx.lineTo(...pos(modulo - 1n));
-    ctx.strokeStyle = settings.colors.main;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        if (n % PSI == 0) yield true;
+    }
 
     if (dx > 10) {
         for (let x = min; x < modulo; x += 1n) {

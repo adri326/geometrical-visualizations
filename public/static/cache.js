@@ -69,12 +69,16 @@ class CacheMatGen {
         this.instance = null;
         this.cache = null;
         this.done = false;
+        this.width = 0;
+        this.height = 0;
     }
 
     reset(...args) {
         this.instance = this.mat(...args);
         this.cache = null;
         this.done = false;
+        this.width = 0;
+        this.height = 0;
     }
 
     next() {
@@ -108,7 +112,7 @@ function cachify(obj) {
 function cachify_mat(obj) {
     let res = {};
     for (let key in obj) {
-        if (obj[key].constructor.name === "GeneratorFunction") {
+        if (obj[key].constructor.name === "GeneratorFunction" || obj[key].generator) {
             res[key] = new CacheMatGen(obj[key]);
             for (let prop of Reflect.ownKeys(obj[key])) {
                 Reflect.set(res[key], prop, Reflect.get(obj[key], prop));

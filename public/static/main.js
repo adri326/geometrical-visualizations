@@ -32,7 +32,11 @@ let settings = {
 
 let current_rendering_symbol = Symbol();
 
-const MAX_DELTA = 1000 / 10;
+// Max number of milliseconds before interrupting for a frame
+const MAX_DELTA = 1000 / 15;
+
+// Number of steps before yielding for interruption
+const PSI = 1000;
 
 // Methods (TODO: use arrays and make it more modular)
 const METHODS = {
@@ -191,16 +195,20 @@ function redraw_canvas(bg = false, exp = false) {
     if (typeof last_step === "function") {
         let res = last_step(ctx, value, settings, exp);
         if (typeof res === "object" && res.next) {
-            let f = () => {
-                let start = performance.now();
-                if (rendering_symbol == current_rendering_symbol) {
-                    while (performance.now() - start < MAX_DELTA) {
-                        if (res.next().done) return;
+            if (exp) {
+                while (!res.next().done);
+            } else {
+                let f = () => {
+                    let start = performance.now();
+                    if (rendering_symbol == current_rendering_symbol) {
+                        while (performance.now() - start < MAX_DELTA) {
+                            if (res.next().done) return;
+                        }
+                        window.requestAnimationFrame(f);
                     }
-                    window.requestAnimationFrame(f);
-                }
-            };
-            window.requestAnimationFrame(f);
+                };
+                window.requestAnimationFrame(f);
+            }
         }
     } else {
         throw new Error("Expected function as last method step, got " + typeof last_step);

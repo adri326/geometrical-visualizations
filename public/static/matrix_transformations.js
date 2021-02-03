@@ -203,24 +203,41 @@ const MAT_TRANS = {
 };
 
 function zero_matrix(width, height) {
-    return [...new Array(height)].map(_ => [...new Array(width)].fill(0n));
+    let res = [...new Array(height)].map(_ => [...new Array(width)].fill(0n));
+    res.width = width;
+    res.height = height;
+    return res;
 }
 
-function mat2mat_monomial(mat, settings) {
-    if (mat.next) {
-        let v = mat.next();
-        while (!v.done) v = mat.next();
-        mat = v.value;
-    }
-
+function* mat2mat_monomial(mat, settings) {
     let a = BigInt(settings.mat2mat_monomial.a);
     let b = BigInt(settings.mat2mat_monomial.b);
     let n = BigInt(settings.mat2mat_monomial.n);
 
     let res = [];
-    for (row of mat) {
-        res.push(row.map(x => a * (x ** n) + b));
+
+
+    if (mat.next) {
+        let v = mat.next();
+        this.width = res.width = mat.width;
+        this.height = res.height = mat.height;
+        while (!v.done) {
+            v = mat.next();
+            for (let y = res.length; y < v.value.length && v.value[y]; y++) {
+                res.push(v.value[y].map(x => a * (x ** n) + b));
+            }
+            yield res;
+        }
+        mat = v.value;
+    } else {
+        this.width = res.width = mat.width;
+        this.height = res.height = mat.height;
     }
+
+    for (let y = res.length; y < mat.length; y++) {
+        res.push(mat[y].map(x => a * (x ** n) + b));
+    }
+
     return res;
 }
 mat2mat_monomial.display_name = "Pointwise Monomial";
@@ -235,14 +252,6 @@ mat2mat_monomial.settings = `
 `;
 
 function* mat2mat_inside(mat, settings) {
-    if (mat.next) {
-        let v = mat.next();
-        while (!v.done) {
-            v = mat.next();
-            yield [[]];
-        }
-        mat = v.value;
-    }
     let diagonal = !settings.mat2mat_inside.mode;
     let op = settings.mat2mat_inside.op;
     let min = BigInt(settings.mat2mat_inside.min);
@@ -256,10 +265,22 @@ function* mat2mat_inside(mat, settings) {
         test = (value) => value < min;
     }
 
-    if (mat.length == 0) return mat;
+    if (mat.next) {
+        let v = mat.next();
+        this.width = mat.width;
+        this.height = mat.height;
+        while (!v.done) {
+            v = mat.next();
+            yield [[]];
+        }
+        mat = v.value;
+    } else {
+        this.width = mat.width;
+        this.height = mat.height;
+    }
 
-    let height = mat.length;
-    let width = mat[0].length;
+    let width = mat.width;
+    let height = mat.height;
 
     let res = fill_matrix(width, height, inside);
     if (outside === inside) return res;
@@ -285,7 +306,7 @@ function* mat2mat_inside(mat, settings) {
     let n = 0;
     // It's gonna be DFS
     while (stack.length) {
-        if (++n % 100 == 0) yield res;
+        if (++n % PSI == 0) yield [[]];
         let [x, y] = stack.pop();
         if (test(mat[y][x]) && res[y][x] !== outside) {
             res[y][x] = outside;

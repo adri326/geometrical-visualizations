@@ -202,6 +202,9 @@ function* mandelbrot(settings) {
     let width = +settings.mandelbrot.width;
     let height = +settings.mandelbrot.height;
 
+    this.width = width;
+    this.height = height;
+
     if (
         isNaN(steps) ||
         steps <= 0 ||
@@ -235,6 +238,21 @@ function* mandelbrot(settings) {
                     let zi = c[1] + 2 * z[0] * z[1];
                     z[0] = zr;
                     z[1] = zi;
+                } else if (d === 3) {
+                    let zr = z[0] * z[0] - z[1] * z[1];
+                    let zi = 2 * z[0] * z[1];
+                    let zr2 = zr * z[0] - zi * z[1];
+                    let zi2 = zr * z[1] + zi * z[0];
+
+                    z[0] = zr2 + c[0];
+                    z[1] = zi2 + c[1];
+                } else if (d === 4) {
+                    let zr = z[0] * z[0] - z[1] * z[1];
+                    let zi = 2 * z[0] * z[1];
+                    let zr2 = zr * zr - zi * zi;
+                    let zi2 = 2 * zr * zi;
+                    z[0] = zr2 + c[0];
+                    z[1] = zi2 + c[1];
                 } else {
                     if (z[0] === 0 && z[1] === 0) {
                         z[0] += c[0];
@@ -264,6 +282,9 @@ function* mandelbrot(settings) {
         yield res;
     }
 
+    res.width = width;
+    res.height = height;
+
     return res;
 }
 mandelbrot.display_name = "Mandelbrot Set";
@@ -276,7 +297,7 @@ mandelbrot.settings = `
         Let <span class="variable two">z</span><sub>0</sub> = {mandelbrot.z0r=0} + <i>i</i> · {mandelbrot.z0i=0}.
     </li>
     <li>
-        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {mandelbrot.steps=1000}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {mandelbrot.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
     </li>
     <li>
         Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">c</span>) = {mandelbrot.minr=-2};<br />
@@ -297,6 +318,9 @@ function* julia(settings) {
     let steps = +settings.julia.steps;
     let width = +settings.julia.width;
     let height = +settings.julia.height;
+
+    this.width = width;
+    this.height = height;
 
     if (
         isNaN(steps) ||
@@ -359,6 +383,9 @@ function* julia(settings) {
         yield res;
     }
 
+    res.width = width;
+    res.height = height;
+
     return res;
 }
 julia.display_name = "Julia Set";
@@ -371,7 +398,7 @@ julia.settings = `
         Let <span class="variable two">c</span> = {julia.cr=0} + <i>i</i> · {julia.ci=0}.
     </li>
     <li>
-        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {julia.steps=1000}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {julia.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
     </li>
     <li>
         Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">z</span><sub>0</sub>) = {julia.minr=-2};<br />
@@ -398,5 +425,7 @@ function fill_matrix(width, height, value) {
         }
         res.push(row);
     }
+    res.width = width;
+    res.height = height;
     return res;
 }
