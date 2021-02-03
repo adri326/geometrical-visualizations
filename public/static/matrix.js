@@ -55,20 +55,20 @@ chess.settings = `
     </li>
 `;
 
-function ant(settings) {
-    let width = +settings.ant.width;
-    let height = +settings.ant.height;
-    let steps = +settings.ant.steps;
-    let modulo = BigInt(settings.ant.modulo);
+function mat_ant(settings) {
+    let width = +settings.mat_ant.width;
+    let height = +settings.mat_ant.height;
+    let steps = +settings.mat_ant.steps;
+    let modulo = BigInt(settings.mat_ant.modulo);
 
     if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0 || isNaN(steps) || steps <= 0 || modulo <= 0) return [[]];
 
-    let m0 = settings.ant.m0;
-    let m1 = settings.ant.m1;
-    let m2 = settings.ant.m2;
-    let m3 = settings.ant.m3;
-    let m4 = settings.ant.m4;
-    let m5 = settings.ant.m5;
+    let m0 = settings.mat_ant.m0;
+    let m1 = settings.mat_ant.m1;
+    let m2 = settings.mat_ant.m2;
+    let m3 = settings.mat_ant.m3;
+    let m4 = settings.mat_ant.m4;
+    let m5 = settings.mat_ant.m5;
 
     let matrix = [m0, m1, m2, m3, m4, m5];
 
@@ -98,25 +98,25 @@ function ant(settings) {
 
     return res;
 }
-ant.display_name = "Ant (Torus)";
-ant.var = `<span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>`;
-ant.settings = `
+mat_ant.display_name = "Ant (Torus)";
+mat_ant.var = `<span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub>`;
+mat_ant.settings = `
     <li>
-        Consider an ant in the center of a {ant.width=25} by {ant.height=25} torus. The ant walks a total of {ant.steps=1000} steps.
+        Consider an ant in the center of a {mat_ant.width=25} by {mat_ant.height=25} torus. The ant walks a total of {mat_ant.steps=1000} steps.
     </li>
     <li>
         For each step, the ant increments <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> by one,
         moves forward to (<span class="variable two">x</span>',<span class="variable three">y</span>')
         and turns according to <span class="variable one">M</span><sub><span class="variable two">x</span>',<span class="variable three">y</span>'</sub>
-        modulo <span class="variable three">m</span> = {ant.modulo=6}:
+        modulo <span class="variable three">m</span> = {mat_ant.modulo=6}:
     </li>
     <li>
-        <b>0</b> → {ant.m0=left|right}<br />
-        <b>1</b> → {ant.m1=left|right}<br />
-        <b>2</b> → {ant.m2=left|right}<br />
-        <b>3</b> → {ant.m3=left|right}<br />
-        <b>4</b> → {ant.m4=left|right}<br />
-        <b>5</b> → {ant.m5=left|right}
+        <b>0</b> → {mat_ant.m0=left|right}<br />
+        <b>1</b> → {mat_ant.m1=left|right}<br />
+        <b>2</b> → {mat_ant.m2=left|right}<br />
+        <b>3</b> → {mat_ant.m3=left|right}<br />
+        <b>4</b> → {mat_ant.m4=left|right}<br />
+        <b>5</b> → {mat_ant.m5=left|right}
     </li>
 `;
 
@@ -297,7 +297,7 @@ mandelbrot.settings = `
         Let <span class="variable two">z</span><sub>0</sub> = {mandelbrot.z0r=0} + <i>i</i> · {mandelbrot.z0i=0}.
     </li>
     <li>
-        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {mandelbrot.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> on <span class="variable two">z</span><sub>0</sub> to diverge before <span class="variable two">n</span></sub>= {mandelbrot.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
     </li>
     <li>
         Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">c</span>) = {mandelbrot.minr=-2};<br />
@@ -398,7 +398,7 @@ julia.settings = `
         Let <span class="variable two">c</span> = {julia.cr=0} + <i>i</i> · {julia.ci=0}.
     </li>
     <li>
-        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> to diverge before <span class="variable two">n</span></sub>= {julia.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
+        Let <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> be the number of steps that it takes for the repeated application of <span class="variable one">f</span><sub><span class="variable two">c</span></sub> on <span class="variable two">z</span><sub>0</sub> to diverge before <span class="variable two">n</span></sub>= {julia.steps=200}. <span class="variable one">M</span><sub><span class="variable two">x</span>,<span class="variable three">y</span></sub> = -1 if it doesn't diverge until then.
     </li>
     <li>
         Map <span class="variable two">x</span> = 0 to ℛ(<span class="variable two">z</span><sub>0</sub>) = {julia.minr=-2};<br />
@@ -410,7 +410,7 @@ julia.settings = `
 
 const MAT = {
     chess,
-    ant,
+    mat_ant,
     turmite,
     mandelbrot,
     julia,

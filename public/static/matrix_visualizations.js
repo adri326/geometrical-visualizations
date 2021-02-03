@@ -216,7 +216,7 @@ function* per_tile(ctx, mat, settings, exp, callback) {
             yield true;
         }
 
-        for (; y < mat.height; y++) {
+        for (; y < mat.height && mat[y] && mat[y].length; y++) {
             let vy = sy + y * dy;
             for (let x = 0; x < v.value[y].length; x++) {
                 let vx = sx + x * dx;

@@ -340,6 +340,7 @@ mat2mat_inside.settings = `
     </li>
 `;
 
+// TODO: convolutional matrices
 const MAT2MAT_TRANS = {
     mat2mat_monomial,
     mat2mat_inside,
